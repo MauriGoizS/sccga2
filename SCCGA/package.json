@@ -1,0 +1,76 @@
+{
+  "name": "sccga",
+  "version": "1.0.0",
+  "main": "main.js",
+"scripts": {
+  "ng": "ng",
+  "start": "ng serve",
+  "build": "ng build --base-href ./",
+  "electron": "ng build --base-href ./ --ssr false --prerender false && electron .",
+  "electron-run": "electron .",
+  "dist": "electron-builder" 
+},
+  "build": {
+    "appId": "com.sccga.mauri",
+    "productName": "SCCGA - Gestión Textil",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/SCCGA/browser/**/*",
+      "main.js",
+      "package.json"
+    ],
+    "extraResources": [
+      "main.exe"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "src/assets/icon.ico"
+    }
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "npm@11.6.2",
+  "dependencies": {
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/forms": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "@angular/platform-server": "^21.0.0",
+    "@angular/router": "^21.0.0",
+    "@angular/ssr": "^21.0.0",
+    "express": "^5.1.0",
+    "fabric": "^7.1.0",
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
+    "rxjs": "~7.8.0",
+    "sweetalert2": "^11.26.3",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.0.0",
+    "@angular/cli": "^21.0.0",
+    "@angular/compiler-cli": "^21.0.0",
+    "@types/express": "^5.0.1",
+    "@types/fabric": "^5.3.10",
+    "@types/node": "^20.17.19",
+    "electron": "^40.1.0",
+    "electron-builder": "^26.7.0",
+    "jsdom": "^27.1.0",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  }
+}

@@ -1,0 +1,302 @@
+/* =========================================
+   1. RESET & ESTRUCTURA BASE
+   ========================================= */
+:host {
+    display: block;
+    width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* =========================================
+   2. HEADER SUPERIOR (BARRA GRIS)
+   ========================================= */
+.super-header-gray {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    background-color: #e9ecef;
+    z-index: 1000; /* Por encima del contenido */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.header-content {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main-logo {
+    height: 60px; /* Ajustado para que no toque bordes */
+    width: auto;
+    object-fit: contain;
+}
+
+/* Botón Hamburguesa (Oculto en Desktop) */
+.hamburger-btn {
+    display: none; /* Por defecto no se ve */
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #0e2b48;
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* =========================================
+   3. LAYOUT DASHBOARD
+   ========================================= */
+.dashboard-container {
+    display: flex;
+    width: 100%;
+    margin-top: 90px; /* Compensa la altura del header fijo */
+    height: calc(100vh - 90px); /* Altura restante */
+    background-color: #f4f6f9; /* Fondo gris muy suave para el contenido */
+    overflow: hidden; /* Evita doble scroll */
+}
+
+/* --- SIDEBAR (Menú Lateral) --- */
+.sidebar {
+    width: 260px;
+    background-color: #0e2b48; /* Azul Oscuro */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100%;
+    overflow-y: auto;
+    flex-shrink: 0;
+    transition: transform 0.3s ease; /* Animación suave para móvil */
+    z-index: 1001;
+}
+
+/* Elementos dentro del Sidebar */
+.profile-section {
+    text-align: center;
+    margin-bottom: 30px;
+    margin-top: 10px;
+}
+
+.profile-icon svg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    display: block;
+    margin: 0 auto 10px auto;
+}
+
+.profile-section h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Navegación */
+.nav-menu {
+    flex-grow: 1;
+}
+
+.nav-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    margin-bottom: 5px;
+}
+
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.nav-header:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-title {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.arrow {
+    font-size: 0.7rem;
+    transition: transform 0.3s;
+}
+
+.arrow.rotated {
+    transform: rotate(180deg);
+}
+
+/* Submenús */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.submenu.show {
+    max-height: 300px; /* Suficiente para mostrar items */
+}
+
+.sub-link {
+    display: block;
+    padding: 10px 10px 10px 30px;
+    color: #c4d3e0;
+    text-decoration: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+}
+
+.sub-link:hover, .active-sublink {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+    font-weight: bold;
+}
+
+/* Logout */
+.logout-section {
+    margin-top: 20px;
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+.btn-logout {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 30px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+/* Botón cerrar en móvil */
+.close-btn-mobile {
+    display: none;
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Scroll solo en el contenido */
+    position: relative;
+    width: 100%; /* Asegura ancho completo */
+}
+
+.content-area {
+    flex-grow: 1;
+    padding: 20px;
+    max-width: 100%; /* Opcional: limita el ancho en pantallas gigantes */
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dashboard-footer {
+    text-align: center;
+    padding: 15px;
+    color: #888;
+    font-size: 0.8rem;
+    background: #f4f6f9;
+}
+
+/* Overlay (Fondo negro transparente) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000; /* Debajo del sidebar (1001) */
+    display: none; /* Oculto por defecto */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+/* =========================================
+   4. MEDIA QUERIES (RESPONSIVO MÓVIL)
+   ========================================= */
+
+@media screen and (max-width: 768px) {
+    
+    /* Mostrar botón hamburguesa */
+    .hamburger-btn {
+        display: block;
+    }
+
+    /* Modificar Sidebar para ser deslizante */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh; /* Ocupa toda la pantalla vertical */
+        transform: translateX(-100%); /* Oculto a la izquierda */
+        box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+        width: 280px; /* Un poco más ancho en móvil para tacto */
+    }
+
+    /* Clase para mostrar sidebar */
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Botón X dentro del sidebar */
+    .close-btn-mobile {
+        display: block;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    /* Ajustar contenido principal */
+    .dashboard-container {
+        /* En móvil, el contenido ocupa el 100% porque el sidebar flota encima */
+        display: block; 
+    }
+
+    .main-content {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .content-area {
+        padding: 10px; /* Menos padding en celular */
+    }
+}

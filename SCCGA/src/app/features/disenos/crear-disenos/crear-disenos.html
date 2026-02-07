@@ -1,0 +1,132 @@
+<div class="form-container" (click)="closeContextMenu()">
+  <h2 class="form-title">{{ isEditMode ? 'EDITAR MODELO' : 'MODELO NUEVO' }}</h2>
+
+  <form [formGroup]="designForm" (ngSubmit)="onSubmit()">
+
+    <div class="grid-row-3">
+      <div class="input-group">
+        <label>Nombre de Diseño</label>
+        <input type="text" formControlName="nombre_modelo" placeholder="Ej: Camisa Oxford">
+      </div>
+      <div class="input-group">
+        <label>Categoría</label>
+        <select formControlName="id_categoria">
+          <option value="" disabled selected>Seleccione una opción</option>
+          <option *ngFor="let cat of categorias" [value]="cat.id_categoria">{{ cat.nombre_categoria }}</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Modelo</label>
+        <input type="text" formControlName="modelo" readonly placeholder="Auto-generado">
+      </div>
+    </div>
+
+    <h3 class="section-subtitle">EDITOR PROFESIONAL SCCGA</h3>
+
+    <div class="canvas-wrapper" style="position: relative;">
+      
+      <div class="toolbar">
+        <div class="tool-group">
+          <button type="button" [class.active]="currentTool === 'move'" (click)="setTool('move')" title="Mover / Seleccionar">✋</button>
+        </div>
+
+        <div class="tool-group properties-group" *ngIf="selectedObject">
+          
+          <div class="prop-item" *ngIf="selectedObject.type !== 'image'">
+            <label>Color</label>
+            <label class="color-square" [style.background-color]="colorTrazo">
+              <input type="color" [(ngModel)]="colorTrazo" [ngModelOptions]="{standalone: true}" (change)="cambiarColorBorde()">
+            </label>
+          </div>
+
+          <div class="prop-item" *ngIf="isClosedShape(selectedObject.type)">
+            <label>Fondo</label>
+            <label class="color-square" [style.background-color]="colorRelleno">
+              <input type="color" [(ngModel)]="colorRelleno" [ngModelOptions]="{standalone: true}" (change)="cambiarColorRelleno()">
+            </label>
+          </div>
+
+          <div class="prop-item" *ngIf="selectedObject.type === 'text'">
+            <label>Tamaño</label>
+            <select [(ngModel)]="tamanoTextoEditable" [ngModelOptions]="{standalone: true}" (change)="cambiarTamanoTexto()" class="thickness-select">
+              <option *ngFor="let px of thicknessOptions" [ngValue]="px * 5">{{px * 5}} px</option>
+            </select>
+          </div>
+
+          <div class="prop-item" *ngIf="selectedObject.type !== 'text' && selectedObject.type !== 'image'">
+            <label>Grosor</label>
+            <select [(ngModel)]="grosorTrazo" [ngModelOptions]="{standalone: true}" (change)="cambiarGrosor()" class="thickness-select">
+              <option *ngFor="let px of thicknessOptions" [ngValue]="px">{{px}} px</option>
+            </select>
+          </div>
+
+          <div class="prop-item" *ngIf="selectedObject.type === 'text'">
+            <label>Letra</label>
+            <select [(ngModel)]="fuenteEditable" [ngModelOptions]="{standalone: true}" (change)="cambiarFuente()" class="font-select">
+              <option *ngFor="let f of fontsLibrary" [value]="f">{{ f }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tool-group">
+          <button type="button" (click)="toggleShapesMenu()" [class.active]="showShapesMenu">📐 Figuras ▼</button>
+          <button type="button" [class.active]="currentTool === 'text'" (click)="setTool('text')">🔤 Texto Nuevo</button>
+          <button type="button" (click)="imageInput.click()" title="Subir Imagen">🖼️ Imagen</button>
+          <input #imageInput type="file" (change)="cargarImagenDesdePC($event)" accept="image/*" style="display: none;">
+        </div>
+
+        <div class="tool-group right-align">
+          <button type="button" (click)="borrarTodo()" class="btn-danger-tool">🗑️ Limpiar</button>
+        </div>
+      </div>
+
+      <div class="shapes-gallery" *ngIf="showShapesMenu">
+        <div class="shapes-grid">
+          <button type="button" *ngFor="let s of shapesLibrary" (click)="agregarFiguraDirecto(s.type)">{{ s.icon }}</button>
+        </div>
+      </div>
+
+      <div class="canvas-container" style="position: relative;">
+        <canvas #miCanvas 
+          width="800" 
+          height="500" 
+          (mousedown)="onMouseDown($event)" 
+          (mousemove)="onMouseMove($event)"
+          (mouseup)="onMouseUp($event)" 
+          (contextmenu)="onRightClick($event)"
+          [style.cursor]="canvasCursor">
+        </canvas>
+      </div>
+
+      <div class="reference-image-section">
+        <h3 class="section-subtitle">IMAGEN DE REFERENCIA (MODELO)</h3>
+        <div class="upload-container">
+          <div class="preview-box" *ngIf="imagenReferenciaPreview">
+            <img [src]="imagenReferenciaPreview" alt="Vista previa">
+            <button type="button" class="btn-remove" (click)="quitarImagenReferencia()">❌</button>
+          </div>
+
+          <div class="upload-controls" *ngIf="!imagenReferenciaPreview">
+            <label class="custom-file-upload">
+              <input type="file" (change)="onSeleccionarImagenReferencia($event)" accept="image/*">
+              <span>📁 Seleccionar Foto de Referencia</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-context-menu" *ngIf="showContextMenu" 
+           [style.left.px]="contextMenuPos.x"
+           [style.top.px]="contextMenuPos.y" 
+           (click)="$event.stopPropagation()">
+        <div class="menu-header">OPCIONES</div>
+        <button type="button" (click)="eliminarObjetoSeleccionado()" class="delete-option">❌ Eliminar</button>
+      </div>
+
+    </div>
+
+    <div class="footer-actions">
+      <button type="submit" class="btn-registar">{{ isEditMode ? 'GUARDAR' : 'REGISTRAR' }}</button>
+    </div>
+  </form>
+</div>

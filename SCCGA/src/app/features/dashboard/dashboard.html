@@ -1,0 +1,98 @@
+<header class="super-header-gray">
+    <div class="header-content">
+        <div class="logo-container">
+            <img src="assets/images/logo1.png" alt="Logo Capilla" class="main-logo">
+        </div>
+
+        <button class="hamburger-btn" (click)="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</header>
+
+<div class="dashboard-container">
+
+    <div class="overlay" [class.show]="isSidebarOpen" (click)="toggleSidebar()"></div>
+
+    <aside class="sidebar" [class.open]="isSidebarOpen">
+
+        <button class="close-btn-mobile" (click)="toggleSidebar()">✕</button>
+
+        <div class="profile-section">
+            <div class="profile-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="12" fill="white" />
+                    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#0e2b48" />
+                </svg>
+            </div>
+            <h3>Administrador</h3>
+        </div>
+
+        <nav class="nav-menu">
+            <ul>
+                <li class="nav-item">
+                    <div class="nav-header single-link" routerLink="/dashboard/controlgeneral" (click)="closeSidebarIfMobile()">
+                        <span class="nav-title">Home</span>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <div class="nav-header" (click)="toggleMenu('maquileros')">
+                        <span class="nav-title">Maquileros</span>
+                        <span class="arrow" [class.rotated]="activeMenu === 'maquileros'">▼</span>
+                    </div>
+                    <div class="submenu" [class.show]="activeMenu === 'maquileros'">
+                        <a class="sub-link" routerLink="/dashboard/crear-maquilero" routerLinkActive="active-sublink" (click)="closeSidebarIfMobile()">Registro Maquilero</a>
+                        <a class="sub-link" routerLink="/dashboard/registros-maquileros" routerLinkActive="active-sublink" (click)="closeSidebarIfMobile()">Ver Lista</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <div class="nav-header" (click)="toggleMenu('empresa')">
+                        <span class="nav-title">Empresa</span>
+                        <span class="arrow" [class.rotated]="activeMenu === 'empresa'">▼</span>
+                    </div>
+                    <div class="submenu" [class.show]="activeMenu === 'empresa'">
+                        <a class="sub-link" routerLink="/dashboard/crear-empresa" routerLinkActive="active-sublink" (click)="closeSidebarIfMobile()">Registro Empresa</a>
+                        <a class="sub-link" routerLink="/dashboard/registros-empresa" routerLinkActive="active-sublink" (click)="closeSidebarIfMobile()">Ver Lista</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <div class="nav-header" (click)="toggleMenu('disenos')">
+                        <span class="nav-title">Diseños</span>
+                        <span class="arrow" [class.rotated]="activeMenu === 'disenos'">▼</span>
+                    </div>
+                    <div class="submenu" [class.show]="activeMenu === 'disenos'">
+                        <a class="sub-link" routerLink="/dashboard/crear-disenos" routerLinkActive="active-sublink" (click)="closeSidebarIfMobile()">Crear Diseño</a>
+                        <a class="sub-link" routerLink="/dashboard/catalogo" routerLinkActive="active-sublink" (click)="closeSidebarIfMobile()">Catálogo</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <div class="nav-header" (click)="toggleMenu('formatos')">
+                        <span class="nav-title">Formatos</span>
+                        <span class="arrow" [class.rotated]="activeMenu === 'formatos'">▼</span>
+                    </div>
+                    <div class="submenu" [class.show]="activeMenu === 'formatos'">
+                        <a class="sub-link" routerLink="/dashboard/crear-formato" routerLinkActive="active-sublink" (click)="closeSidebarIfMobile()">Crear</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="logout-section">
+            <button (click)="logout()" class="btn-logout">Salir</button>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="content-area">
+            <router-outlet></router-outlet>
+        </div>
+
+        <footer class="dashboard-footer">
+            <p>&copy; Derechos Reservados de Grupo Textil Capilla</p>
+        </footer>
+    </div>
+</div>

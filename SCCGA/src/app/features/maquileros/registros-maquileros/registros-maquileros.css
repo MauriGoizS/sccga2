@@ -1,0 +1,264 @@
+/* --- VARIABLES PRINCIPALES --- */
+:host {
+  --primary-color: #003366;       /* Tu azul corporativo */
+  --primary-light: #e6efff;
+  --accent-color: #3498db;        /* Azul para editar */
+  --danger-color: #e74c3c;        /* Rojo para eliminar */
+  --text-dark: #2c3e50;
+  --bg-gray: #f8f9fa;
+  --radius: 8px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.main-container {
+  padding: 20px;
+  max-width: 1400px; /* Ancho máximo para pantallas grandes */
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- TÍTULO --- */
+.header-section {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.page-title {
+  color: var(--primary-color);
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+}
+
+/* --- TABLA ESCRITORIO --- */
+.table-card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden; /* Redondea las esquinas de la tabla */
+  border: 1px solid #e2e8f0;
+}
+
+.responsive-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.responsive-table th {
+  background-color: #f1f5f9; /* Encabezado gris muy suave */
+  color: var(--primary-color);
+  padding: 15px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.responsive-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--text-dark);
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+/* Ajustes de columnas */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-circle {
+  width: 30px;
+  height: 30px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.font-bold { font-weight: 600; }
+.nowrap { white-space: nowrap; }
+.text-muted { color: #ccc; }
+
+.address-text {
+  display: block;
+  max-width: 280px; /* Evita que la dirección se coma toda la tabla */
+  line-height: 1.3;
+  font-size: 0.9rem;
+}
+
+/* --- BOTONES DE ACCIÓN --- */
+.actions-wrapper {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.action-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background-color 0.2s;
+  color: white;
+}
+
+.action-btn.delete { background-color: var(--text-dark); }
+.action-btn.delete:hover { background-color: var(--danger-color); transform: scale(1.1); }
+
+.action-btn.edit { background-color: var(--text-dark); }
+.action-btn.edit:hover { background-color: var(--accent-color); transform: scale(1.1); }
+
+/* --- LOADER Y EMPTY STATE --- */
+.state-container { text-align: center; padding: 40px; }
+.spinner {
+  border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color);
+  border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* =========================================
+   DISEÑO MÓVIL (CARD VIEW)
+   ========================================= */
+@media screen and (max-width: 900px) {
+  
+  /* 1. Ocultar encabezados de la tabla tradicional */
+  .responsive-table thead { display: none; }
+
+  /* 2. Convertir la tabla en bloques */
+  .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box; /* Asegura que el padding no rompa el ancho */
+  }
+
+  /* 3. Estilo de la TARJETA (Fila) */
+  .responsive-table tr {
+    margin-bottom: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* Sombra un poco más marcada */
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+  }
+
+  /* 4. Estilo común de las celdas internas */
+  .responsive-table td {
+    text-align: right;
+    padding: 12px 15px;
+    position: relative;
+    padding-left: 45%; /* Espacio para la etiqueta a la izquierda */
+    display: flex;
+    justify-content: space-between; /* Dato a la derecha, etiqueta a la izquierda */
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    min-height: 45px;
+  }
+
+  /* 5. La Etiqueta (Pseudo-elemento) */
+  .responsive-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    text-align: left;
+    width: 40%; /* Limita el ancho de la etiqueta */
+  }
+
+  /* --- AJUSTES ESPECÍFICOS POR CAMPO --- */
+
+  /* A. NOMBRE (Título de la tarjeta) */
+  .responsive-table td[data-label="Nombres"] {
+    background-color: var(--primary-color);
+    color: white;
+    justify-content: flex-start; /* Alinear a la izquierda */
+    padding: 15px;
+    padding-left: 15px; /* Quitamos el padding del 45% */
+  }
+  .responsive-table td[data-label="Nombres"]::before { display: none; } /* Sin etiqueta generada */
+  
+  .responsive-table td[data-label="Nombres"] .font-bold { 
+    color: white; 
+    font-size: 1.1rem; 
+  }
+  .responsive-table td[data-label="Nombres"] .avatar-circle {
+    background-color: white; 
+    color: var(--primary-color);
+    margin-right: 10px;
+  }
+
+  /* B. DIRECCIÓN (Bloque grande) */
+  .responsive-table td[data-label="Dirección"] {
+    display: block;
+    text-align: left;
+    padding-left: 15px; /* Reset padding */
+    padding-top: 35px; /* Espacio para la etiqueta arriba */
+  }
+  .responsive-table td[data-label="Dirección"]::before {
+    top: 10px; 
+    width: 100%;
+  }
+  .address-text { max-width: 100%; }
+
+  /* C. TELÉFONO, CONTACTO, CORREO, FECHA */
+  /* Usan el estilo por defecto (paso 4), solo aseguramos que el texto largo se vea bien */
+  .responsive-table td[data-label="Correo"] {
+    word-break: break-all; /* Si el correo es muy largo, que baje de línea */
+  }
+
+  /* D. CORRECCIÓN DE BOTONES (DETALLES) */
+  .responsive-table td[data-label="Detalles"] {
+    /* Quitamos el posicionamiento absoluto de la etiqueta para esta celda */
+    padding-left: 15px; 
+    background-color: #f9fafb; /* Fondo gris claro */
+    border-top: 1px solid #eee;
+    border-bottom: none;
+    
+    /* Flexbox normal: Etiqueta a la izq, botones a la der */
+    display: flex;
+    flex-direction: row; 
+    justify-content: space-between; 
+    align-items: center;
+  }
+
+  /* Hacemos que la etiqueta "DETALLES" sea relativa, no absoluta */
+  .responsive-table td[data-label="Detalles"]::before {
+    position: relative;
+    left: 0;
+    width: auto;
+    margin-right: auto; /* Empuja los botones a la derecha */
+    transform: none;
+  }
+
+  /* Aseguramos que los botones se vean bien */
+  .actions-wrapper {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    width: auto;
+  }
+
+  /* Hacemos los botones un poco más grandes para tocar con el dedo */
+  .action-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Pequeña sombra para resaltar */
+  }
+}

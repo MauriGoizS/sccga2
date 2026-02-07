@@ -1,0 +1,184 @@
+<div class="container-form">
+  <h2 class="form-title">FORMATO DE ENCARGO</h2>
+
+  <form [formGroup]="formEncargo" (ngSubmit)="onSubmit()">
+
+    <div class="row">
+      <div class="col">
+        <label for="empresa">Empresa</label>
+        <div class="select-wrapper">
+          <select id="empresa" formControlName="id_empresa">
+            <option value="" disabled selected>Seleccionar Empresa</option>
+            <option *ngFor="let emp of listaEmpresas" [value]="emp.id_empresa">
+              {{ emp.nombre_empresa }}
+            </option>
+          </select>
+        </div>
+        <span class="error" *ngIf="formEncargo.get('id_empresa')?.invalid && formEncargo.get('id_empresa')?.touched">
+          Requerido
+        </span>
+      </div>
+
+      <div class="col">
+        <label for="encargado">Encargado (Maquilero)</label>
+        <div class="select-wrapper">
+          <select id="encargado" formControlName="id_maquilero">
+            <option value="" disabled selected>Seleccionar Maquilero</option>
+            <option *ngFor="let maq of listaMaquileros" [value]="maq.id_maquilero">
+              {{ maq.nombres }} {{ maq.apellido_paterno }} {{ maq.apellido_materno }}
+            </option>
+          </select>
+        </div>
+        <span class="error"
+          *ngIf="formEncargo.get('id_maquilero')?.invalid && formEncargo.get('id_maquilero')?.touched">
+          Requerido
+        </span>
+      </div>
+    </div>
+
+    <div class="row full-width-row">
+      <div class="col full-width-col">
+        <label class="section-label">Selección de Modelos</label>
+
+        <div class="model-selector-wrapper">
+
+          <div class="selector-panel left-panel">
+            <h4 class="panel-title">Busca el modelo</h4>
+            <div class="search-box">
+              <input type="text" placeholder="Escribe nombre o código..." [formControl]="searchControl"
+                class="search-input">
+            </div>
+
+            <div class="options-list">
+
+              <div *ngIf="isLoadingModelos" class="loader-container">
+                <div class="spinner"></div>
+                <span>Buscando...</span>
+              </div>
+
+              <ng-container *ngIf="!isLoadingModelos">
+                
+                <div *ngFor="let mod of listaDisenosFiltrada" class="option-item" (click)="toggleModelo(mod)">
+                  <div class="option-info">
+                    <span class="opt-name">{{ mod.nombre_modelo }}</span>
+                    <span class="opt-code">{{ mod.modelo }}</span>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" [checked]="esModeloSeleccionado(mod.id_modelo || 0)" readonly
+                      class="custom-checkbox">
+                  </div>
+                </div>
+
+                <div *ngIf="listaDisenosFiltrada.length === 0" class="no-results">
+                  No se encontraron modelos.
+                </div>
+
+              </ng-container>
+            
+            </div>
+            </div>
+
+          <div class="vertical-divider"></div>
+
+          <div class="selector-panel right-panel">
+            <div class="panel-header-right">
+              <h4 class="panel-title">MODELOS SELECCIONADOS</h4>
+              <span class="badge-count" *ngIf="modelosSeleccionados.length > 0">
+                {{ modelosSeleccionados.length }}
+              </span>
+            </div>
+            <div class="selected-list">
+              <div *ngIf="modelosSeleccionados.length === 0" class="empty-state">
+                <p>Aún no has seleccionado nada.</p>
+              </div>
+              <div *ngFor="let item of modelosSeleccionados" class="selected-item-card">
+                <div class="selected-info">
+                  <span class="sel-name">{{ item.nombre_modelo }}</span>
+                  <span class="sel-code">{{ item.modelo }}</span>
+                </div>
+                <button type="button" class="btn-remove" (click)="removerModelo(item.id_modelo || 0)" title="Eliminar">
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div class="validation-error" *ngIf="modelosSeleccionados.length === 0 && formEncargo.touched">
+              * Debes seleccionar al menos un modelo.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="row full-width-row">
+      <div class="col full-width-col">
+        <label class="section-label">Asignación de Tallas por Modelo</label>
+
+        <div *ngIf="modelosSeleccionados.length === 0" class="empty-state-tallas">
+          Selecciona un modelo arriba para asignar sus tallas.
+        </div>
+
+        <div *ngFor="let modelo of modelosSeleccionados; let mIndex = index" class="modelo-tallas-card">
+          <div class="modelo-header">
+            <span class="modelo-title">{{ modelo.nombre_modelo }} ({{ modelo.modelo }})</span>
+          </div>
+
+          <div class="tallas-grid-container">
+            <div class="talla-item" *ngFor="let talla of modelo.tallas; let tIndex = index">
+
+              <div class="checkbox-wrapper">
+                <input type="checkbox" [id]="'m'+mIndex+'-t'+tIndex" [(ngModel)]="talla.seleccionada"
+                  [ngModelOptions]="{standalone: true}" (change)="toggleTallaModelo(modelo, tIndex)">
+                <label [for]="'m'+mIndex+'-t'+tIndex">{{ talla.nombre_talla }}</label>
+              </div>
+
+              <div class="input-wrapper" *ngIf="talla.seleccionada">
+                <input type="number" placeholder="Cant." [(ngModel)]="talla.cantidad"
+                  [ngModelOptions]="{standalone: true}" (input)="actualizarTotalPiezasGlobal()" min="1">
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="piezas">Total Piezas Global (Automático)</label>
+        <input type="number" id="piezas" formControlName="piezas" class="input-readonly">
+        <span class="error" *ngIf="formEncargo.get('piezas')?.invalid && formEncargo.get('piezas')?.touched">
+          Requerido (Asigna cantidades arriba)
+        </span>
+      </div>
+
+      <div class="col">
+        <label for="status">Status</label>
+        <div class="select-wrapper">
+          <select id="status" formControlName="id_estatus">
+            <option value="" disabled selected>Seleccionar Status</option>
+            <option *ngFor="let st of listaStatus" [value]="st.id_estatus">
+              {{ st.estatus_encargo }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row full-width">
+      <label for="observaciones">Observaciones</label>
+      <textarea id="observaciones" formControlName="observaciones" rows="4" placeholder="Escribe un Mensaje"></textarea>
+    </div>
+
+    <div class="button-container">
+      <button type="button" class="btn-secondary" (click)="previsualizarPDF()">
+        Previsualizar PDF
+      </button>
+      <button type="submit" class="btn-submit">
+        Generar Formato
+      </button>
+    </div>
+
+  </form>
+</div>

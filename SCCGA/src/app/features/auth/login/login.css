@@ -1,0 +1,181 @@
+.login-wrapper {
+    background-image: url('../../../../../src/assets/images/fondologin.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.login-card {
+    background-color: white;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body {
+    padding: 30px 40px 0 40px;
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.logo {
+    max-width: 120px;
+    width: 100%;
+    height: auto;
+}
+
+.login-title {
+    text-align: center;
+    color: #555;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    color: #666;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #102e52;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: #3b71ca;
+}
+
+.forgot-password {
+    text-align: center;
+    margin: 15px 0 25px 0;
+}
+
+.forgot-password a {
+    color: #3b71ca;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.btn-ingresar {
+    width: 100%;
+    background-color: #102e52;
+    color: white;
+    border: none;
+    padding: 18px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    margin-top: 10px;
+    width: calc(100% + 80px);
+    margin-left: -40px;
+}
+
+.btn-ingresar:hover {
+    background-color: #0a1f38;
+}
+
+.btn-ingresar:active {
+    background-color: #05101d;
+}
+
+.error-msg {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    border: 1px solid #ffcdd2;
+}
+
+
+.footer-copy {
+    margin-top: 20px;
+    color: #333;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 0 10px;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        max-width: 100%;
+    }
+
+    .card-body {
+        padding: 20px 20px 0 20px;
+    }
+
+    .btn-ingresar {
+        width: calc(100% + 40px);
+        margin-left: -20px;
+        font-size: 1rem;
+        padding: 15px;
+    }
+
+    .login-title {
+        font-size: 1.3rem;
+    }
+
+    .logo {
+        width: 100px;
+    }
+}
+
+input.input-error {
+    border-color: #d32f2f !important;
+    background-color: #fff8f8;
+}
+
+.field-error {
+    color: #d32f2f;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.error-msg-backend {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    border: 1px solid #ffcdd2;
+}

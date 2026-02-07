@@ -1,0 +1,54 @@
+<div class="login-wrapper">
+
+    <div class="login-card">
+        <div class="card-body">
+            <div class="logo-container">
+                <img [src]="imagePath"  alt="Logo Capilla" class="logo">
+            </div>
+
+            <h2 class="login-title">Inicio de Sesión</h2>
+
+            <div *ngIf="errorMessage" class="error-msg-backend">
+                {{ errorMessage }}
+            </div>
+
+            <form (ngSubmit)="loginForm.form.valid && onLogin()" #loginForm="ngForm" novalidate>
+
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input type="text" id="username" [(ngModel)]="credentials.username" name="username"
+                        placeholder="Nombre de Usuario" required #userCtrl="ngModel"
+                        [class.input-error]="userCtrl.invalid && (userCtrl.dirty || userCtrl.touched || loginForm.submitted)">
+
+                    <div *ngIf="userCtrl.invalid && (userCtrl.dirty || userCtrl.touched || loginForm.submitted)"
+                        class="field-error">
+                        <small>El usuario es obligatorio.</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" [(ngModel)]="credentials.password" name="password"
+                        placeholder="Contraseña" required #passCtrl="ngModel"
+                        [class.input-error]="passCtrl.invalid && (passCtrl.dirty || passCtrl.touched || loginForm.submitted)">
+
+                    <div *ngIf="passCtrl.invalid && (passCtrl.dirty || passCtrl.touched || loginForm.submitted)"
+                        class="field-error">
+                        <small>La contraseña es obligatoria.</small>
+                    </div>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn-ingresar">INGRESAR</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer-copy">
+        <p>&copy; Derechos Reservados de Grupo Textil Capilla</p>
+    </footer>
+
+</div>

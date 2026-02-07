@@ -1,0 +1,155 @@
+<div class="registro-container">
+
+    <h2 class="form-title">REGISTRO DE EMPRESAS</h2>
+
+    <div class="card-body">
+        <form [formGroup]="empresaForm" (ngSubmit)="onSubmit()" class="maquilero-form">
+
+            <div class="grid-centered-row">
+                <div class="form-group center-column">
+                    <label>Nombre de Empresa</label>
+                    <input type="text" class="form-input" placeholder="Empresa" formControlName="nombre_empresa">
+                </div>
+            </div>
+
+            <div class="section-divider">
+                <h3>Datos de Contacto</h3>
+            </div>
+
+            <!-- DATOS PERSONALES: Grid normal de 3 columnas -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombres</label>
+                    <input type="text" class="form-input" placeholder="Nombres" formControlName="nombres">
+                    <div *ngIf="empresaForm.get('nombres')?.invalid && (empresaForm.get('nombres')?.dirty || empresaForm.get('nombres')?.touched)"
+                        class="error-message">
+                        El nombre es obligatorio.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Apellido Paterno</label>
+                    <input type="text" class="form-input" placeholder="Apellido Paterno"
+                        formControlName="apellido_paterno">
+                    <div *ngIf="empresaForm.get('apellido_paterno')?.invalid && (empresaForm.get('apellido_paterno')?.dirty || empresaForm.get('apellido_paterno')?.touched)"
+                        class="error-message">
+                        El apellido paterno es obligatorio.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Apellido Materno</label>
+                    <input type="text" class="form-input" placeholder="Apellido Materno"
+                        formControlName="apellido_materno">
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono ó Celular</label>
+                    <input type="tel" class="form-input" placeholder="Teléfono ó Celular" formControlName="telefono">
+                </div>
+
+                <div class="form-group">
+                    <label>Segundo Contacto</label>
+                    <input type="tel" class="form-input" placeholder="Segundo Contacto"
+                        formControlName="segundo_contacto">
+                </div>
+
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" class="form-input" placeholder="Correo Electrónico" formControlName="correo">
+                    <div *ngIf="empresaForm.get('correo')?.invalid && (empresaForm.get('correo')?.dirty || empresaForm.get('correo')?.touched)"
+                        class="error-message">
+                        Correo inválido u obligatorio.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider">
+                <h3>Dirección de Empresa</h3>
+            </div>
+
+            <div formGroupName="direccion">
+
+                <!-- DIRECCIÓN PARTE 1: Grid normal -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Calle</label>
+                        <input type="text" class="form-input" placeholder="Calle" formControlName="calle">
+                        <div *ngIf="empresaForm.get('direccion.calle')?.invalid && (empresaForm.get('direccion.calle')?.touched)"
+                            class="error-message">
+                            La calle es obligatoria.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Número Exterior</label>
+                        <input type="text" class="form-input" placeholder="Núm. Exterior"
+                            formControlName="numero_exterior">
+                        <div *ngIf="empresaForm.get('direccion.numero_exterior')?.invalid && (empresaForm.get('direccion.numero_exterior')?.touched)"
+                            class="error-message">
+                            Requerido.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Número Interior</label>
+                        <input type="text" class="form-input" placeholder="Núm. Interior"
+                            formControlName="numero_interior">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Código Postal</label>
+                        <input type="text" class="form-input" placeholder="C.P." formControlName="codigo_postal">
+                        <div *ngIf="empresaForm.get('direccion.codigo_postal')?.invalid && (empresaForm.get('direccion.codigo_postal')?.touched)"
+                            class="error-message">
+                            C.P. Requerido.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Colonia</label>
+                        <input type="text" class="form-input" placeholder="Colonia" formControlName="colonia">
+                        <div *ngIf="empresaForm.get('direccion.colonia')?.invalid && (empresaForm.get('direccion.colonia')?.touched)"
+                            class="error-message">
+                            La colonia es obligatoria.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Municipio</label>
+                        <input type="text" class="form-input" placeholder="Municipio" formControlName="municipio">
+                        <div *ngIf="empresaForm.get('direccion.municipio')?.invalid && (empresaForm.get('direccion.municipio')?.touched)"
+                            class="error-message">
+                            El municipio es obligatorio.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CIUDAD: Centrado usando tu grid de 3 columnas (Igual que Empresa) -->
+                <div class="grid-centered-row">
+                    <div class="form-group center-column">
+                        <label>Ciudad</label>
+                        <input type="text" class="form-input" placeholder="Ciudad" formControlName="ciudad">
+                        <div *ngIf="empresaForm.get('direccion.ciudad')?.invalid && (empresaForm.get('direccion.ciudad')?.touched)"
+                            class="error-message">
+                            La ciudad es obligatoria.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOTÓN -->
+            <div class="button-container">
+                <!-- El disable depende del form O del loading -->
+                <button type="submit" class="btn-registrar" [disabled]="empresaForm.invalid || isLoading">
+                    {{ isLoading ? 'Registrando...' : 'Registrar' }}
+                </button>
+            </div>
+
+            <!-- MENSAJES DE ERROR GLOBALES (Opcionales si usas SweetAlert) -->
+            <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+        </form>
+    </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="main-container fade-in">
+  
+  <div class="header-section">
+    <h1 class="page-title">EMPRESAS</h1>
+  </div>
+
+  <div *ngIf="isLoading" class="state-container loading">
+    <div class="spinner"></div>
+    <p>Cargando empresas...</p>
+  </div>
+
+  <div class="table-card" *ngIf="!isLoading && listaEmpresas.length > 0">
+    <table class="responsive-table">
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Contacto</th> <th>Dirección</th>
+          <th>Teléfono</th>
+          <th>2° Contacto</th>
+          <th>Correo</th>
+          <th>Fecha</th>
+          <th class="text-center">Detalles</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of listaEmpresas">
+          
+          <td data-label="Empresa">
+            <div class="company-info">
+              <div class="icon-circle">
+                <i class="fas fa-building"></i>
+              </div>
+              <span class="font-bold company-name">
+                {{ item.nombre_empresa }}
+              </span>
+            </div>
+          </td>
+
+          <td data-label="Contacto">
+            <span class="contact-name">
+              <i class="fas fa-user-tie mobile-icon"></i>
+              {{ item.nombres }} {{ item.apellido_paterno }} {{ item.apellido_materno }}
+            </span>
+          </td>
+
+          <td data-label="Dirección">
+            <span class="address-text">
+              {{ item.direccion.calle }} #{{ item.direccion.numero_exterior }} 
+              {{ item.direccion.numero_interior ? 'Int ' + item.direccion.numero_interior : '' }},
+              <br class="desktop-only">
+              {{ item.direccion.colonia }}, {{ item.direccion.municipio }}
+            </span>
+          </td>
+
+          <td data-label="Teléfono" class="nowrap">
+            {{ item.telefono }}
+          </td>
+
+          <td data-label="2° Contacto" class="nowrap">
+            <span *ngIf="item.segundo_contacto">{{ item.segundo_contacto }}</span>
+            <span *ngIf="!item.segundo_contacto" class="text-muted">-</span>
+          </td>
+
+          <td data-label="Correo" class="email-col">
+            {{ item.correo }}
+          </td>
+
+          <td data-label="Fecha">
+            {{ item.fecha_registro | date:'dd/MM/yy' }}
+          </td>
+
+          <td data-label="Detalles">
+            <div class="actions-wrapper">
+              <button class="action-btn delete" (click)="eliminar(item.id_empresa!)" title="Eliminar">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+              <button class="action-btn edit" (click)="editar(item.id_empresa!)" title="Editar">
+                <i class="fas fa-pen"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!isLoading && listaEmpresas.length === 0" class="state-container empty">
+    <p>No se encontraron empresas registradas.</p>
+    <button class="retry-btn" (click)="cargarDatos()">
+      <i class="fas fa-sync"></i> Reintentar
+    </button>
+  </div>
+
+</div>

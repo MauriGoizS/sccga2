@@ -1,0 +1,114 @@
+<div class="container registro-container">
+
+    <div class="header-section">
+        <h2 class="page-title">EDICIÓN DE MAQUILERO</h2>
+    </div>
+
+    <div class="card-body">
+        <form [formGroup]="formMaquilero" (ngSubmit)="guardarCambios()" class="editar-maquilero-form">
+
+            <div class="section-divider">
+                <h3><i class="fas fa-address-card"></i> Datos de Contacto</h3>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombres</label>
+                    <input type="text" class="form-input" placeholder="Nombres" formControlName="nombres">
+                    <div *ngIf="formMaquilero.get('nombres')?.invalid && (formMaquilero.get('nombres')?.touched)" class="error-message">
+                        Requerido.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Apellido Paterno</label>
+                    <input type="text" class="form-input" placeholder="Apellido Paterno" formControlName="apellido_paterno">
+                    <div *ngIf="formMaquilero.get('apellido_paterno')?.invalid && (formMaquilero.get('apellido_paterno')?.touched)" class="error-message">
+                        Requerido.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Apellido Materno</label>
+                    <input type="text" class="form-input" placeholder="Apellido Materno" formControlName="apellido_materno">
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" class="form-input" placeholder="10 dígitos" formControlName="telefono">
+                </div>
+
+                <div class="form-group">
+                    <label>Segundo Contacto</label>
+                    <input type="tel" class="form-input" placeholder="Opcional" formControlName="segundo_contacto">
+                </div>
+
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" class="form-input" placeholder="ejemplo@correo.com" formControlName="correo">
+                    <div *ngIf="formMaquilero.get('correo')?.invalid && (formMaquilero.get('correo')?.touched)" class="error-message">
+                        Correo inválido.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider">
+                <h3><i class="fas fa-map-marker-alt"></i> Dirección</h3>
+            </div>
+
+            <div formGroupName="direccion">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Calle</label>
+                        <input type="text" class="form-input" placeholder="Calle" formControlName="calle">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Número Exterior</label>
+                        <input type="text" class="form-input" placeholder="# Ext" formControlName="numero_exterior">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Número Interior</label>
+                        <input type="text" class="form-input" placeholder="# Int (Opcional)" formControlName="numero_interior">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Código Postal</label>
+                        <input type="text" class="form-input" placeholder="C.P." formControlName="codigo_postal">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Colonia</label>
+                        <input type="text" class="form-input" placeholder="Colonia" formControlName="colonia">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Municipio</label>
+                        <input type="text" class="form-input" placeholder="Municipio" formControlName="municipio">
+                    </div>
+                </div>
+
+                <div class="grid-centered-row" style="margin-top: 20px;">
+                    <div class="form-group center-column" style="max-width: 400px; margin: 0 auto;">
+                        <label>Ciudad</label>
+                        <input type="text" class="form-input" placeholder="Ciudad" formControlName="ciudad">
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-container">
+
+                <button type="button" class="btn-cancel" (click)="cancelar()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+
+                <button type="submit" class="btn-submit" [disabled]="formMaquilero.invalid || isLoading">
+                    <i *ngIf="isLoading" class="fas fa-spinner fa-spin"></i>
+                    {{ isLoading ? 'Guardando...' : 'Actualizar' }}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
