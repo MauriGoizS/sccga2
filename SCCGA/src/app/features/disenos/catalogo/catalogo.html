@@ -50,7 +50,7 @@
 
       <div class="card-image-wrapper">
         <img
-          [src]="item.imagen1 || item.imagen2"
+          [src]="item.imagen2 || item.imagen1"
           alt="{{ item.nombre_modelo }}"
           class="card-img"
           onerror="this.src='https://placehold.co/400x300/f3f4f6/9ca3af?text=Sin+Imagen'; this.onerror=null;"
