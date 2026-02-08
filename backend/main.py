@@ -572,18 +572,20 @@ def obtener_encargos(db: Session = Depends(get_db)):
         INNER JOIN maquileros m ON f.id_maquilero = m.id_maquilero
         INNER JOIN empresa e ON f.id_empresa = e.id_empresa
         INNER JOIN estatus_encargo es ON f.id_estatus = es.id_estatus
-        
-        -- CAMBIO IMPORTANTE: Usamos 'mdl' en lugar de 'mod'
-        -- OJO: Si tu tabla en la base de datos se llama 'diseno', cambia 'LEFT JOIN modelo' por 'LEFT JOIN diseno'
         LEFT JOIN modelo mdl ON f.id_modelo = mdl.id_modelo 
         
-        GROUP BY f.fecha_creacion, f.id_maquilero, f.id_empresa
+        GROUP BY 
+            f.fecha_creacion, 
+            f.id_maquilero, 
+            f.id_empresa,
+            m.nombres,        -- <--- AGREGADO PARA CORREGIR ERROR
+            e.nombre_empresa  -- <--- AGREGADO PARA CORREGIR ERROR
+            
         ORDER BY f.fecha_creacion DESC;
     """)
     
     result = db.execute(sql).mappings().all()
     return result
-
 @app.put("/encargos/{id_formato}/estatus")
 def actualizar_estatus(id_formato: int, id_nuevo_estatus: int, db: Session = Depends(get_db)):
     encargo = db.query(models.Formato).filter(models.Formato.id_formato == id_formato).first()
