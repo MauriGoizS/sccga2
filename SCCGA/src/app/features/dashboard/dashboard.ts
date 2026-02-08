@@ -20,7 +20,26 @@ export class DashboardComponent {
   isSidebarOpen: boolean = false;
 
   logout() {
-    this.authService.logout();
+    console.log('🔘 Botón Logout presionado');
+
+    // Verificamos antes de borrar
+    const antes = localStorage.getItem('token');
+    console.log('Estado antes de borrar:', antes);
+
+    // Borramos a la fuerza
+    localStorage.removeItem('token');
+    // localStorage.clear(); // Descomenta esta línea si quieres borrar ABSOLUTAMENTE TODO
+
+    // Verificamos después de borrar
+    const despues = localStorage.getItem('token');
+    console.log('Estado después de borrar:', despues);
+
+    if (!despues) {
+      console.log('👋 Token eliminado correctamente. Redirigiendo...');
+      this.router.navigate(['/login']);
+    } else {
+      console.error('⚠️ ALERTA: El token sigue ahí. Algo impide borrarlo.');
+    }
   }
 
   // Abre o cierra los submenús (ej: Maquileros -> Ver Lista)
