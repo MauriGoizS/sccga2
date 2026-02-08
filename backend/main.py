@@ -637,15 +637,14 @@ async def subir_pdf_formato(id_formato: int, file: UploadFile = File(...), db: S
         raise HTTPException(status_code=500, detail="Error al subir el archivo a la nube")
     
 # Endpoint para VER el PDF guardado
+# main.py (Línea 466 aprox)
 @app.get("/formato/{id_formato}/pdf") 
 def ver_pdf_guardado(id_formato: int, db: Session = Depends(get_db)):
     formato = db.query(models.Formato).filter(models.Formato.id_formato == id_formato).first()
     
     if not formato or not formato.ruta_pdf:
         raise HTTPException(status_code=404, detail="PDF no encontrado")
-        
-    # Redirigir al navegador a la URL de Cloudinary
-    return RedirectResponse(url=formato.ruta_pdf)
+    return {"url": formato.ruta_pdf}
 
 if __name__ == "__main__":
     print(">>> Iniciando el servidor del sistema SCCGA...")
