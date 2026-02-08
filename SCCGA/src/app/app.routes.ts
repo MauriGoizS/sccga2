@@ -15,11 +15,14 @@ import { CatalogoComponent } from './features/disenos/catalogo/catalogo';
 import { CrearFormatoComponent } from './features/formatos/crear-formato/crear-formato';
 import { ControlgeneralComponent } from './features/controlgeneral/controlgeneral/controlgeneral';
 
+import { authGuard } from './core/guards/auth-guard';
+
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { 
       path: 'dashboard',
       component: DashboardComponent,
+      canActivate: [authGuard],
       children: [
         // RUTA DE CONTROL GENERAL
           { path: 'controlgeneral', component: ControlgeneralComponent },
@@ -41,7 +44,7 @@ export const routes: Routes = [
           // 2. Ver Catálogo
           { path: 'catalogo', component: CatalogoComponent },
           
-          // 3. Editar (CORRECCIÓN 2: Quitamos 'dashboard/' porque ya estamos dentro de hijos)
+          // 3. Editar 
           { path: 'catalogo/:id', component: CrearDisenoComponent }, 
           
         // RUTA DE FORMATOS
