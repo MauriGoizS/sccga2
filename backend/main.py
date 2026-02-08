@@ -28,7 +28,9 @@ app = FastAPI()
 # Configuración de CORS
 origins = [
     "http://localhost:4200",
-    "http://127.0.0.1:3000",
+    "http://https://sccga2.onrender.com:3000",
+    "https://productsccgacapilla.vercel.app", 
+    "https://sccga-web-final.vercel.app"
     "*"
 ]
 
@@ -638,6 +640,6 @@ def ver_pdf_guardado(id_formato: int, db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     print(">>> Iniciando el servidor del sistema SCCGA...")
-    # host 127.0.0.1 es para local, port 8000 es el que busca tu frontend
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    # host https://sccga2.onrender.com es para local, port 8000 es el que busca tu frontend
+    uvicorn.run(app, host="https://sccga2.onrender.com", port=8000)
 
