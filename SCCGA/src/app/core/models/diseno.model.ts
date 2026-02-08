@@ -22,6 +22,6 @@ export interface ModeloNuevo {
   operaciones: Operacion[];
   // Las imágenes no se declaran aquí estrictamente porque van como binarios,
   // pero sirven de referencia.
-  imagen1?: File;
-  imagen2?: File;
+  imagen1?: string | any;
+  imagen2?: string | any;
 }
