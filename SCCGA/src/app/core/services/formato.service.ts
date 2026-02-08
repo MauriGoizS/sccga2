@@ -85,11 +85,10 @@ export class FormatoService {
     return this.http.put(`${this.apiUrl}/encargos/${idFormato}/estatus?id_nuevo_estatus=${idNuevoEstatus}`, null, { headers: this.getHeaders() });
   }
 
-  verFormatoPDF(id: number): Observable<Blob> {
-    // Asegúrate de que esta URL coincida con tu endpoint de Python
-    return this.http.get(`${this.apiUrl}/formato/${id}/pdf`, {
-      headers: this.getHeaders(),
-      responseType: 'blob'
+  // formato.service.ts
+  verFormatoPDF(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/formato/${id}/pdf`, {
+      headers: this.getHeaders()
     });
   }
 
@@ -98,8 +97,8 @@ export class FormatoService {
     formData.append('file', archivo, `formato_${id}.pdf`);
     let headers = new HttpHeaders();
     if (isPlatformBrowser(this.platformId)) {
-       const token = localStorage.getItem('token');
-       if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+      const token = localStorage.getItem('token');
+      if (token) headers = headers.set('Authorization', `Bearer ${token}`);
     }
 
     return this.http.post(`${this.apiUrl}/formato/${id}/subir-pdf`, formData, { headers: headers });

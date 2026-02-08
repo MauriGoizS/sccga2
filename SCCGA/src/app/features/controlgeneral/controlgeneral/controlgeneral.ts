@@ -119,8 +119,8 @@ export class ControlgeneralComponent implements OnInit {
     });
   }
 
-  verPDF(id: number) {
-    // Toast informativo mientras descarga
+ verPDF(id: number) {
+    // 1. Mostrar el Toast de "Abriendo..."
     const toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -128,21 +128,23 @@ export class ControlgeneralComponent implements OnInit {
         timer: 3000,
         timerProgressBar: true
     });
-    toast.fire({ icon: 'info', title: 'Abriendo PDF...' });
+    toast.fire({ icon: 'info', title: 'Buscando PDF...' });
 
+    // 2. Pedir la URL al servidor
     this.formatoService.verFormatoPDF(id).subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, '_blank');
+      next: (response) => {
+        // El servidor respondió ÉXITO y nos dio la URL
+        const urlCloudinary = response.url;
         
-        // Liberar memoria después de un momento
-        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+        // Abrimos la URL de Cloudinary directo en otra pestaña
+        window.open(urlCloudinary, '_blank');
       },
       error: (err) => {
-        console.error('Error al descargar el PDF', err);
+        console.error('Error al obtener el PDF', err);
+        // 3. Si falla (404), mostramos tu alerta de error original
         Swal.fire({
             title: 'Archivo no encontrado',
-            text: 'No se encontró el PDF para este encargo (quizás es antiguo o no se subió correctamente).',
+            text: 'No se encontró el PDF para este encargo. Es posible que no se haya subido todavía.',
             icon: 'warning'
         });
       }
