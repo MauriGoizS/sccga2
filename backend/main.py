@@ -43,13 +43,21 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# Render leerá estos datos de las Variables de Entorno que configuraremos luego
+# DEBUG: Verificamos qué está leyendo el servidor
+print("--- DEBUG VARIABLES DE ENTORNO ---")
+cloud_name_leido = os.getenv("CLOUDINARY_CLOUD_NAME")
+print(f"Buscando 'CLOUDINARY_CLOUD_NAME': {cloud_name_leido}")
+
+if not cloud_name_leido:
+    print("⚠️ PELIGRO: La variable está vacía. Verifica el panel de Render.")
+
 cloudinary.config( 
-  cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"), 
+  cloud_name = cloud_name_leido, 
   api_key = os.getenv("CLOUDINARY_API_KEY"), 
   api_secret = os.getenv("CLOUDINARY_API_SECRET"),
   secure = True
 )
+
 # --- 1. ENDPOINT DE REGISTRO ---
 @app.post("/registrar", response_model=schemas.Token)
 def registrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
@@ -641,6 +649,7 @@ def ver_pdf_guardado(id_formato: int, db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     print(">>> Iniciando el servidor del sistema SCCGA...")
-    # host https://sccga2.onrender.com es para local, port 8000 es el que busca tu frontend
-    uvicorn.run(app, host="https://sccga2.onrender.com", port=8000)
-
+    # Render asigna el puerto dinámicamente. Debemos leerlo.
+    port = int(os.environ.get("PORT", 10000)) 
+    # Host DEBE ser 0.0.0.0 para que Render pueda conectar con tu app
+    uvicorn.run(app, host="0.0.0.0", port=port)
