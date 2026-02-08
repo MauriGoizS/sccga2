@@ -57,7 +57,7 @@ export class CrearFormatoComponent implements OnInit {
   private logoBase64: string | null = null;
   direccionMaquileroStr: string = '';
 
-  private readonly baseUrl = 'http://127.0.0.1:8000/';
+  private readonly baseUrl = 'https://sccga2.onrender.com/';
   isLoadingModelos: boolean = false;
   cacheDetalles: Map<number, DetalleModeloSeleccionado> = new Map();
 

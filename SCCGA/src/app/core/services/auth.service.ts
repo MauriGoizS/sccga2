@@ -12,7 +12,7 @@ export class AuthService {
     private router = inject(Router);
 
     // Asegúrate de que esta URL coincida con tu backend de Python (FastAPI)
-    private apiUrl = 'http://127.0.0.1:8000';
+    private apiUrl = 'https://sccga2.onrender.com';
 
     login(credentials: LoginRequest): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(

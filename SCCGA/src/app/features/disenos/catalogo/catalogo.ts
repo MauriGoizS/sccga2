@@ -2,11 +2,11 @@ import { Component, OnInit, inject, ChangeDetectorRef, PLATFORM_ID, NgZone } fro
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms'; 
+import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
 
 import { DisenoService } from '../../../core/services/diseno.service';
 import { ModeloNuevo } from '../../../core/models/diseno.model';
-import { debounceTime, distinctUntilChanged, merge } from 'rxjs'; 
+import { debounceTime, distinctUntilChanged, merge } from 'rxjs';
 
 // IMPORTAMOS SWEETALERT2
 import Swal from 'sweetalert2';
@@ -14,7 +14,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule], 
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
   templateUrl: './catalogo.html',
   styleUrl: './catalogo.css',
 })
@@ -24,22 +24,22 @@ export class CatalogoComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private sanitizer = inject(DomSanitizer);
   private platformId = inject(PLATFORM_ID);
-  private ngZone = inject(NgZone); 
+  private ngZone = inject(NgZone);
 
-  listaVisible: ModeloNuevo[] = []; 
+  listaVisible: ModeloNuevo[] = [];
   isLoading: boolean = true;
   errorMensaje: string = '';
-  
+
   // Variables de Paginación
   paginaActual: number = 1;
-  itemsPorPagina: number = 30; 
-  totalPaginas: number = 1; 
+  itemsPorPagina: number = 30;
+  totalPaginas: number = 1;
 
   // Controles
   searchControl = new FormControl('');
-  ordenControl = new FormControl('fecha_desc'); 
+  ordenControl = new FormControl('fecha_desc');
 
-  private readonly BACKEND_URL = 'http://127.0.0.1:8000';
+  private readonly BACKEND_URL = 'https://sccga2.onrender.com';
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -50,7 +50,7 @@ export class CatalogoComponent implements OnInit {
         this.searchControl.valueChanges.pipe(debounceTime(500), distinctUntilChanged()),
         this.ordenControl.valueChanges
       ).subscribe(() => {
-        this.cargarPagina(1); 
+        this.cargarPagina(1);
       });
     }
   }
@@ -58,8 +58,8 @@ export class CatalogoComponent implements OnInit {
   cargarPagina(pagina: number) {
     this.isLoading = true;
     this.errorMensaje = '';
-    this.listaVisible = []; 
-    this.cdr.detectChanges(); 
+    this.listaVisible = [];
+    this.cdr.detectChanges();
 
     const skip = (pagina - 1) * this.itemsPorPagina;
     const terminoBusqueda = this.searchControl.value || '';
@@ -71,12 +71,12 @@ export class CatalogoComponent implements OnInit {
           this.ngZone.run(() => {
             this.listaVisible = resp.data;
             this.paginaActual = pagina;
-            
+
             this.totalPaginas = Math.ceil(resp.total / this.itemsPorPagina);
             if (this.totalPaginas === 0) this.totalPaginas = 1;
 
-            this.isLoading = false; 
-            this.cdr.detectChanges(); 
+            this.isLoading = false;
+            this.cdr.detectChanges();
           });
         },
         error: (error) => {
@@ -97,7 +97,7 @@ export class CatalogoComponent implements OnInit {
     if (isNaN(valor) || valor < 1) valor = 1;
     if (valor > this.totalPaginas) valor = this.totalPaginas;
 
-    event.target.value = valor; 
+    event.target.value = valor;
 
     if (valor !== this.paginaActual) {
       this.cargarPagina(valor);
@@ -137,7 +137,7 @@ export class CatalogoComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        
+
         // Llamamos al servicio para borrar
         this.DisenoService.deleteDiseno(id).subscribe({
           next: () => {

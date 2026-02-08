@@ -2,7 +2,7 @@ import { Component, OnInit, inject, PLATFORM_ID, ViewChild, ElementRef, AfterVie
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser'; 
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { DisenoService } from '../../../core/services/diseno.service';
 import { Categoria } from '../../../core/models/diseno.model';
 import Swal from 'sweetalert2';
@@ -10,12 +10,12 @@ import Swal from 'sweetalert2';
 const RESET_STROKE = '#000000';
 const RESET_FILL = '#ffffff';
 const RESET_THICKNESS = 2;
-const BACKEND_URL = 'http://127.0.0.1:8000'; 
+const BACKEND_URL = 'https://sccga2.onrender.com';
 
 interface CanvasObject {
   id: number; type: string; x: number; y: number; width: number; height: number;
   strokeColor: string; fillColor: string; thickness: number;
-  rotation: number; 
+  rotation: number;
   text?: string; font?: string; fontSize?: number; textAlign?: 'left' | 'center' | 'right'; lineHeight?: number;
   imgElement?: HTMLImageElement;
 }
@@ -44,39 +44,39 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   canvasCursor: string = 'default';
 
   imagenReferenciaBase64: string | null = null;
-  imagenReferenciaPreview: SafeUrl | null = null; 
+  imagenReferenciaPreview: SafeUrl | null = null;
 
   currentTool: ToolType = 'move';
   colorTrazo = RESET_STROKE; colorRelleno = RESET_FILL; grosorTrazo = RESET_THICKNESS;
-  
+
   // VARIABLES DE TEXTO
-  fuenteEditable = 'Arial'; 
-  tamanoTextoEditable = 30; 
-  
+  fuenteEditable = 'Arial';
+  tamanoTextoEditable = 30;
+
   showInPlaceEditor = false;
 
   canvasObjects: CanvasObject[] = [];
   selectedObject: CanvasObject | null = null;
-  
-  // Estados de interacción
-  isDrawing = false; 
-  isDragging = false; 
-  isResizing = false;
-  isRotating = false; 
 
-  startX = 0; startY = 0; 
+  // Estados de interacción
+  isDrawing = false;
+  isDragging = false;
+  isResizing = false;
+  isRotating = false;
+
+  startX = 0; startY = 0;
   dragOffsetX = 0; dragOffsetY = 0;
 
   thicknessOptions = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32];
   fontsLibrary = ['Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Georgia', 'Impact', 'Comic Sans MS', 'Trebuchet MS', 'Arial Black'];
 
   shapesLibrary = [
-    { type: 'line', icon: '⎯' }, 
-    { type: 'diagonal', icon: '╱' }, 
+    { type: 'line', icon: '⎯' },
+    { type: 'diagonal', icon: '╱' },
     { type: 'rect', icon: '⬜' },
-    { type: 'circle', icon: '⭕' }, 
-    { type: 'triangle', icon: '▲' }, 
-    { type: 'diamond', icon: '💎' }, 
+    { type: 'circle', icon: '⭕' },
+    { type: 'triangle', icon: '▲' },
+    { type: 'diamond', icon: '💎' },
     { type: 'star5', icon: '⭐' },
     { type: 'arrow', icon: '➔' },      // Flecha Gruesa (Forma)
     { type: 'arrow-thin', icon: '→' }  // <--- NUEVA FLECHA DELGADA
@@ -171,14 +171,14 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
           const pathLimpio = diseno.imagen2.replace(/^\/+/, '');
           const fullUrl = diseno.imagen2.startsWith('http') ? diseno.imagen2 : `${BACKEND_URL}/${pathLimpio}`;
           this.imagenReferenciaPreview = this.sanitizer.bypassSecurityTrustUrl(fullUrl);
-          this.imagenReferenciaBase64 = diseno.imagen2; 
+          this.imagenReferenciaBase64 = diseno.imagen2;
         }
         const ops = this.operaciones; ops.clear();
         if (diseno.operaciones) diseno.operaciones.forEach((op: any) => ops.push(this.fb.group({ nombre_operacion: [op.nombre_operacion] })));
         if (diseno.canvas_json) {
           this.canvasObjects = JSON.parse(diseno.canvas_json);
           this.canvasObjects.forEach(obj => {
-            if (obj.rotation === undefined) obj.rotation = 0; 
+            if (obj.rotation === undefined) obj.rotation = 0;
             if (obj.type === 'image' && obj.text) {
               const img = new Image();
               const imgSrc = (obj.text.startsWith('http') || obj.text.startsWith('data:')) ? obj.text : `${BACKEND_URL}/${obj.text.replace(/^\/+/, '')}`;
@@ -202,13 +202,13 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
         img.onload = () => {
           const n: CanvasObject = { id: Date.now(), type: 'image', x: 100, y: 100, width: 200, height: 200 * (img.height / img.width), strokeColor: '', fillColor: '', thickness: 0, rotation: 0, imgElement: img, text: ev.target.result };
           this.canvasObjects.push(n); this.seleccionarObjeto(n); this.redrawAll();
-        }; 
+        };
         img.src = ev.target.result;
-      }; 
+      };
       reader.readAsDataURL(input.files[0]);
     }
   }
-  
+
   onSeleccionarImagenReferencia(e: Event) {
     const input = e.target as HTMLInputElement;
     if (input.files && input.files[0]) {
@@ -220,16 +220,16 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
       reader.readAsDataURL(input.files[0]);
     }
   }
-  
+
   quitarImagenReferencia() { this.imagenReferenciaPreview = null; this.imagenReferenciaBase64 = null; }
 
   onSubmit() {
     if (this.designForm.invalid) { Swal.fire('Atención', 'Datos incompletos', 'warning'); return; }
-    
+
     // 1. Guardar selección y deseleccionar para foto limpia
     const objetoSeleccionadoTemp = this.selectedObject;
     this.selectedObject = null;
-    this.redrawAll(); 
+    this.redrawAll();
 
     // 2. Tomar foto
     const imagenLimpia = this.canvasRef.nativeElement.toDataURL('image/png');
@@ -240,11 +240,11 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
 
     const formValues = this.designForm.getRawValue();
     const serializableObjects = this.canvasObjects.map(obj => ({ ...obj, text: obj.type === 'image' && obj.imgElement ? obj.imgElement.src : obj.text, imgElement: undefined }));
-    
+
     const finalPayload: any = {
       nombre_modelo: formValues.nombre_modelo, id_categoria: Number(formValues.id_categoria), modelo: formValues.modelo,
-      canvas_json: JSON.stringify(serializableObjects), 
-      imagen_resultado: imagenLimpia, 
+      canvas_json: JSON.stringify(serializableObjects),
+      imagen_resultado: imagenLimpia,
       imagen2: this.imagenReferenciaBase64, operaciones: formValues.operaciones
     };
 
@@ -255,11 +255,11 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
 
   redrawAll() {
     if (!this.ctx) return;
-    this.ctx.fillStyle = 'white'; 
+    this.ctx.fillStyle = 'white';
     this.ctx.fillRect(0,0,800,500);
 
     this.canvasObjects.forEach(obj => this.drawFullShape(obj));
-    
+
     if (this.selectedObject) {
         this.drawSelectionUI(this.selectedObject);
     }
@@ -267,7 +267,7 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
 
   drawFullShape(o: CanvasObject) {
     this.ctx.save();
-    
+
     // --- LÓGICA DE ROTACIÓN ---
     const cx = o.x + o.width / 2;
     const cy = o.y + o.height / 2;
@@ -276,43 +276,43 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
     this.ctx.translate(-cx, -cy);
 
     // --- ESTILOS ---
-    this.ctx.strokeStyle = o.strokeColor; 
-    this.ctx.fillStyle = o.fillColor; 
+    this.ctx.strokeStyle = o.strokeColor;
+    this.ctx.fillStyle = o.fillColor;
     this.ctx.lineWidth = o.thickness;
-    this.ctx.lineCap = 'round'; 
-    this.ctx.lineJoin = 'round'; 
-    
+    this.ctx.lineCap = 'round';
+    this.ctx.lineJoin = 'round';
+
     this.ctx.beginPath();
-    
+
     switch (o.type) {
-      case 'text': 
-        this.drawMultilineText(o); 
-        this.ctx.restore(); 
+      case 'text':
+        this.drawMultilineText(o);
+        this.ctx.restore();
         return;
 
-      case 'line': 
-        this.ctx.moveTo(o.x, cy); 
-        this.ctx.lineTo(o.x + o.width, cy); 
+      case 'line':
+        this.ctx.moveTo(o.x, cy);
+        this.ctx.lineTo(o.x + o.width, cy);
         break;
 
-      case 'diagonal': 
-        this.ctx.moveTo(o.x, o.y); 
-        this.ctx.lineTo(o.x + o.width, o.y + o.height); 
+      case 'diagonal':
+        this.ctx.moveTo(o.x, o.y);
+        this.ctx.lineTo(o.x + o.width, o.y + o.height);
         break;
 
-      case 'rect': 
-        this.ctx.rect(o.x, o.y, o.width, o.height); 
+      case 'rect':
+        this.ctx.rect(o.x, o.y, o.width, o.height);
         break;
 
-      case 'circle': 
-        this.ctx.arc(cx, cy, Math.abs(o.width / 2), 0, Math.PI * 2); 
+      case 'circle':
+        this.ctx.arc(cx, cy, Math.abs(o.width / 2), 0, Math.PI * 2);
         break;
 
-      case 'triangle': 
-        this.ctx.moveTo(cx, o.y); 
-        this.ctx.lineTo(o.x, o.y + o.height); 
-        this.ctx.lineTo(o.x + o.width, o.y + o.height); 
-        this.ctx.closePath(); 
+      case 'triangle':
+        this.ctx.moveTo(cx, o.y);
+        this.ctx.lineTo(o.x, o.y + o.height);
+        this.ctx.lineTo(o.x + o.width, o.y + o.height);
+        this.ctx.closePath();
         break;
 
       // --- AQUÍ ESTÁ LA NUEVA FLECHA DELGADA ---
@@ -320,7 +320,7 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
         // Línea central
         this.ctx.moveTo(o.x, cy);
         this.ctx.lineTo(o.x + o.width, cy);
-        
+
         // Punta de la flecha (estilo < o >)
         const headSize = 15; // Tamaño de la punta
         // Parte superior de la V
@@ -331,39 +331,39 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
         this.ctx.lineTo(o.x + o.width - headSize, cy + headSize * 0.6);
         break;
 
-      case 'image': 
+      case 'image':
         if (o.imgElement && o.imgElement.complete) {
-            this.ctx.drawImage(o.imgElement, o.x, o.y, o.width, o.height); 
+            this.ctx.drawImage(o.imgElement, o.x, o.y, o.width, o.height);
         }
-        this.ctx.restore(); 
+        this.ctx.restore();
         return;
 
-      default: 
+      default:
         // Figuras complejas (Flecha Gruesa, Diamante, Estrella)
         this.drawPolygons(o, cx, cy);
     }
 
     if (this.isClosedShape(o.type)) this.ctx.fill();
-    this.ctx.stroke(); 
-    
+    this.ctx.stroke();
+
     this.ctx.restore();
   }
 
   drawPolygons(o: CanvasObject, cx: number, cy: number) {
-    if (o.type === 'diamond') { 
-        this.ctx.moveTo(cx, o.y); 
-        this.ctx.lineTo(o.x + o.width, cy); 
-        this.ctx.lineTo(cx, o.y + o.height); 
-        this.ctx.lineTo(o.x, cy); 
-        this.ctx.closePath(); 
+    if (o.type === 'diamond') {
+        this.ctx.moveTo(cx, o.y);
+        this.ctx.lineTo(o.x + o.width, cy);
+        this.ctx.lineTo(cx, o.y + o.height);
+        this.ctx.lineTo(o.x, cy);
+        this.ctx.closePath();
     }
-    else if (o.type === 'star5') { 
-        for (let i=0; i<10; i++) { 
-            const r = (i%2===0) ? o.width/2 : o.width/4; 
-            const angle = (Math.PI/5)*i - Math.PI/2; 
-            this.ctx.lineTo(cx + r*Math.cos(angle), cy + r*Math.sin(angle)); 
-        } 
-        this.ctx.closePath(); 
+    else if (o.type === 'star5') {
+        for (let i=0; i<10; i++) {
+            const r = (i%2===0) ? o.width/2 : o.width/4;
+            const angle = (Math.PI/5)*i - Math.PI/2;
+            this.ctx.lineTo(cx + r*Math.cos(angle), cy + r*Math.sin(angle));
+        }
+        this.ctx.closePath();
     }
     // Flecha Gruesa (Polygon)
     else if (o.type === 'arrow') {
@@ -372,110 +372,110 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
         const shaftY = o.y + (o.height - shaftHeight) / 2;
         const arrowTipX = o.x + o.width;
 
-        this.ctx.moveTo(o.x, shaftY); 
-        this.ctx.lineTo(o.x + o.width - arrowHeadWidth, shaftY); 
-        this.ctx.lineTo(o.x + o.width - arrowHeadWidth, o.y); 
-        this.ctx.lineTo(arrowTipX, cy); 
-        this.ctx.lineTo(o.x + o.width - arrowHeadWidth, o.y + o.height); 
-        this.ctx.lineTo(o.x + o.width - arrowHeadWidth, shaftY + shaftHeight); 
-        this.ctx.lineTo(o.x, shaftY + shaftHeight); 
+        this.ctx.moveTo(o.x, shaftY);
+        this.ctx.lineTo(o.x + o.width - arrowHeadWidth, shaftY);
+        this.ctx.lineTo(o.x + o.width - arrowHeadWidth, o.y);
+        this.ctx.lineTo(arrowTipX, cy);
+        this.ctx.lineTo(o.x + o.width - arrowHeadWidth, o.y + o.height);
+        this.ctx.lineTo(o.x + o.width - arrowHeadWidth, shaftY + shaftHeight);
+        this.ctx.lineTo(o.x, shaftY + shaftHeight);
         this.ctx.closePath();
     }
   }
 
   configurarGeneracionCodigo() { this.designForm.get('id_categoria')?.valueChanges.subscribe(idCat => { if (!this.isEditMode && idCat) { this.disenoService.getSiguienteSecuencia(idCat).subscribe({ next: (resp: any) => { const cat = this.categorias.find(c => c.id_categoria == idCat); if (cat) { const codigoFinal = `UTP${cat.nombre_categoria.substring(0,3).toUpperCase()}${resp.siguiente_secuencia.toString().padStart(5, '0')}`; this.designForm.patchValue({ modelo: codigoFinal }); } } }); } }); }
   private intentarRedibujar() { if (this.ctx && this.canvasObjects.length > 0) setTimeout(() => this.redrawAll(), 300); }
-  
-  ngAfterViewInit() { 
-    if (isPlatformBrowser(this.platformId)) { 
-        this.ctx = this.canvasRef.nativeElement.getContext('2d', { willReadFrequently: true })!; 
-        if (!this.isEditMode) this.borrarTodo(); 
-        else this.intentarRedibujar(); 
-    } 
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+        this.ctx = this.canvasRef.nativeElement.getContext('2d', { willReadFrequently: true })!;
+        if (!this.isEditMode) this.borrarTodo();
+        else this.intentarRedibujar();
+    }
   }
-  
+
   closeContextMenu() { this.showContextMenu = false; }
   toggleShapesMenu() { this.showShapesMenu = !this.showShapesMenu; }
   onRightClick(e: MouseEvent) { e.preventDefault(); this.showContextMenu = true; this.contextMenuPos = { x: e.clientX, y: e.clientY }; }
 
   eliminarObjetoSeleccionado() { this.canvasObjects = this.canvasObjects.filter(o => o !== this.selectedObject); this.selectedObject = null; this.showContextMenu = false; this.redrawAll(); }
-  
-  onMouseDown(e: MouseEvent) { 
-    this.closeContextMenu(); 
-    if (e.button !== 0) return; 
 
-    const {x,y} = this.getPos(e.clientX, e.clientY); 
-    this.startX = x; this.startY = y; 
-    
-    if (this.currentTool === 'move') { 
-      if (this.selectedObject) { 
+  onMouseDown(e: MouseEvent) {
+    this.closeContextMenu();
+    if (e.button !== 0) return;
+
+    const {x,y} = this.getPos(e.clientX, e.clientY);
+    this.startX = x; this.startY = y;
+
+    if (this.currentTool === 'move') {
+      if (this.selectedObject) {
         if (this.isHitRotationHandle(x, y, this.selectedObject)) {
             this.isRotating = true;
             return;
         }
 
-        const hX = this.selectedObject.x + this.selectedObject.width; 
-        const hY = this.selectedObject.y + this.selectedObject.height; 
-        
-        if (Math.abs(x - hX) < 20 && Math.abs(y - hY) < 20) { 
-            this.isResizing = true; return; 
-        } 
-      } 
-      
-      const found = [...this.canvasObjects].reverse().find(o => this.isPointInRotatedRect(x, y, o)); 
-      
-      this.seleccionarObjeto(found || null); 
-      
+        const hX = this.selectedObject.x + this.selectedObject.width;
+        const hY = this.selectedObject.y + this.selectedObject.height;
+
+        if (Math.abs(x - hX) < 20 && Math.abs(y - hY) < 20) {
+            this.isResizing = true; return;
+        }
+      }
+
+      const found = [...this.canvasObjects].reverse().find(o => this.isPointInRotatedRect(x, y, o));
+
+      this.seleccionarObjeto(found || null);
+
       if (found && found.type === 'text') {
         this.fuenteEditable = found.font || 'Arial';
         this.tamanoTextoEditable = found.fontSize || 30;
       }
 
-      if (found) { 
-        this.isDragging = true; 
-        this.dragOffsetX = x - found.x; 
-        this.dragOffsetY = y - found.y; 
-      } 
+      if (found) {
+        this.isDragging = true;
+        this.dragOffsetX = x - found.x;
+        this.dragOffsetY = y - found.y;
+      }
 
-    } else if (this.currentTool === 'text') { 
-      this.agregarFiguraDirecto('text'); 
-      this.setTool('move'); 
-    } else { 
-      this.isDrawing = true; this.ctx.beginPath(); this.ctx.moveTo(x,y); 
-    } 
-    this.redrawAll(); 
+    } else if (this.currentTool === 'text') {
+      this.agregarFiguraDirecto('text');
+      this.setTool('move');
+    } else {
+      this.isDrawing = true; this.ctx.beginPath(); this.ctx.moveTo(x,y);
+    }
+    this.redrawAll();
   }
 
-  onMouseMove(e: MouseEvent) { 
-    const {x,y} = this.getPos(e.clientX, e.clientY); 
-    
+  onMouseMove(e: MouseEvent) {
+    const {x,y} = this.getPos(e.clientX, e.clientY);
+
     if (this.isRotating && this.selectedObject) {
         const cx = this.selectedObject.x + this.selectedObject.width / 2;
         const cy = this.selectedObject.y + this.selectedObject.height / 2;
         const angle = Math.atan2(y - cy, x - cx) + Math.PI / 2;
         this.selectedObject.rotation = angle;
-    
-    } else if (this.isResizing && this.selectedObject) { 
-        this.selectedObject.width = Math.max(30, x - this.selectedObject.x); 
-        this.selectedObject.height = Math.max(30, y - this.selectedObject.y); 
 
-    } else if (this.isDragging && this.selectedObject) { 
-        this.selectedObject.x = x - this.dragOffsetX; 
-        this.selectedObject.y = y - this.dragOffsetY; 
+    } else if (this.isResizing && this.selectedObject) {
+        this.selectedObject.width = Math.max(30, x - this.selectedObject.x);
+        this.selectedObject.height = Math.max(30, y - this.selectedObject.y);
 
-    } else if (this.isDrawing) { 
-        this.ctx.lineTo(x,y); 
-        this.ctx.stroke(); 
-    } 
-    this.redrawAll(); 
+    } else if (this.isDragging && this.selectedObject) {
+        this.selectedObject.x = x - this.dragOffsetX;
+        this.selectedObject.y = y - this.dragOffsetY;
+
+    } else if (this.isDrawing) {
+        this.ctx.lineTo(x,y);
+        this.ctx.stroke();
+    }
+    this.redrawAll();
   }
 
-  onMouseUp(e: MouseEvent) { 
-    this.isDrawing = false; 
-    this.isDragging = false; 
-    this.isResizing = false; 
-    this.isRotating = false; 
-    this.redrawAll(); 
+  onMouseUp(e: MouseEvent) {
+    this.isDrawing = false;
+    this.isDragging = false;
+    this.isResizing = false;
+    this.isRotating = false;
+    this.redrawAll();
   }
 
   isPointInRotatedRect(x: number, y: number, o: CanvasObject): boolean {
@@ -492,7 +492,7 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   isHitRotationHandle(x: number, y: number, o: CanvasObject): boolean {
     const cx = o.x + o.width / 2;
     const cy = o.y + o.height / 2;
-    const handleDist = o.height/2 + 25; 
+    const handleDist = o.height/2 + 25;
     const hx = cx + Math.sin(o.rotation) * handleDist;
     const hy = cy - Math.cos(o.rotation) * handleDist;
     return Math.sqrt(Math.pow(x - hx, 2) + Math.pow(y - hy, 2)) < 10;
@@ -503,44 +503,44 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   eliminarOperacion(i: number) { this.operaciones.removeAt(i); }
   cargarCategorias() { this.disenoService.getCategorias().subscribe((d: any) => this.categorias = d); }
   getPos(cx: number, cy: number) { const rect = this.canvasRef.nativeElement.getBoundingClientRect(); return { x: (cx - rect.left) * (800 / rect.width), y: (cy - rect.top) * (500 / rect.height) }; }
-  
-  setTool(t: ToolType) { 
-    this.currentTool = t; 
-    this.selectedObject = null; 
-    this.canvasCursor = t === 'move' ? 'default' : 'crosshair'; 
-    this.redrawAll(); 
+
+  setTool(t: ToolType) {
+    this.currentTool = t;
+    this.selectedObject = null;
+    this.canvasCursor = t === 'move' ? 'default' : 'crosshair';
+    this.redrawAll();
   }
-  
+
   borrarTodo() { this.canvasObjects = []; this.selectedObject = null; this.ctx.fillStyle = 'white'; this.ctx.fillRect(0,0,800,500); this.redrawAll(); }
   isClosedShape(t: string | undefined) { return t ? this.closedShapes.includes(t) : false; }
   seleccionarObjeto(obj: CanvasObject | null) { this.selectedObject = obj; }
-  
-  agregarFiguraDirecto(type: string) { 
+
+  agregarFiguraDirecto(type: string) {
     const isText = type === 'text';
-    const nuevo: CanvasObject = { 
-      id: Date.now(), 
-      type, 
-      x: 250, 
-      y: 150, 
-      width: isText ? 250 : 100, 
-      height: isText ? 50 : 100, 
-      strokeColor: RESET_STROKE, 
-      fillColor: RESET_FILL, 
-      thickness: isText ? 0 : RESET_THICKNESS, 
+    const nuevo: CanvasObject = {
+      id: Date.now(),
+      type,
+      x: 250,
+      y: 150,
+      width: isText ? 250 : 100,
+      height: isText ? 50 : 100,
+      strokeColor: RESET_STROKE,
+      fillColor: RESET_FILL,
+      thickness: isText ? 0 : RESET_THICKNESS,
       rotation: 0,
       fontSize: isText ? this.tamanoTextoEditable : undefined,
       font: isText ? this.fuenteEditable : undefined,
-      text: isText ? 'Escribe aquí' : undefined 
-    }; 
-    this.canvasObjects.push(nuevo); 
-    this.seleccionarObjeto(nuevo); 
-    this.redrawAll(); 
+      text: isText ? 'Escribe aquí' : undefined
+    };
+    this.canvasObjects.push(nuevo);
+    this.seleccionarObjeto(nuevo);
+    this.redrawAll();
   }
 
   cambiarColorBorde() { if (this.selectedObject) this.selectedObject.strokeColor = this.colorTrazo; this.redrawAll(); }
   cambiarColorRelleno() { if (this.selectedObject) this.selectedObject.fillColor = this.colorRelleno; this.redrawAll(); }
   cambiarGrosor() { if (this.selectedObject) this.selectedObject.thickness = Number(this.grosorTrazo); this.redrawAll(); }
-  
+
   cambiarFuente() {
     if (this.selectedObject && this.selectedObject.type === 'text') {
       this.selectedObject.font = this.fuenteEditable;
@@ -558,19 +558,19 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   actualizarPropiedadesTexto() { this.redrawAll(); }
   resetearEditor() { this.designForm.reset(); const ops = this.operaciones; while(ops.length!==0) ops.removeAt(0); this.agregarOperacion(); this.borrarTodo(); this.imagenReferenciaPreview = null; this.imagenReferenciaBase64 = null; }
 
-  drawMultilineText(o: CanvasObject) { 
+  drawMultilineText(o: CanvasObject) {
     if (!o.text) return;
-    
+
     const fontSize = o.fontSize || 30;
     const fontFamily = o.font || 'Arial';
-    
+
     this.ctx.font = `${fontSize}px "${fontFamily}"`;
     this.ctx.fillStyle = o.strokeColor || '#000000';
     this.ctx.textBaseline = 'top';
-    
+
     const lineHeightRatio = 1.2;
     const lineHeight = fontSize * lineHeightRatio;
-    
+
     const lines = o.text.split('\n');
     let maxLineWidth = 0;
 
@@ -587,40 +587,40 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
       y += lineHeight;
     });
 
-    o.width = maxLineWidth + 20; 
+    o.width = maxLineWidth + 20;
     o.height = (lines.length * lineHeight) + 10;
   }
 
-  drawSelectionUI(o: CanvasObject) { 
-    this.ctx.save(); 
+  drawSelectionUI(o: CanvasObject) {
+    this.ctx.save();
     const cx = o.x + o.width / 2;
     const cy = o.y + o.height / 2;
     this.ctx.translate(cx, cy);
     this.ctx.rotate(o.rotation || 0);
     this.ctx.translate(-cx, -cy);
 
-    this.ctx.strokeStyle = '#00a8ff'; 
+    this.ctx.strokeStyle = '#00a8ff';
     this.ctx.lineWidth = 1;
-    this.ctx.setLineDash([5, 5]); 
-    this.ctx.strokeRect(o.x - 5, o.y - 5, o.width + 10, o.height + 10); 
-    this.ctx.setLineDash([]); 
+    this.ctx.setLineDash([5, 5]);
+    this.ctx.strokeRect(o.x - 5, o.y - 5, o.width + 10, o.height + 10);
+    this.ctx.setLineDash([]);
 
-    this.ctx.fillStyle = '#00a8ff'; 
-    this.ctx.fillRect(o.x + o.width - 5, o.y + o.height - 5, 12, 12); 
+    this.ctx.fillStyle = '#00a8ff';
+    this.ctx.fillRect(o.x + o.width - 5, o.y + o.height - 5, 12, 12);
 
-    const handleDist = 25; 
+    const handleDist = 25;
     this.ctx.beginPath();
     this.ctx.moveTo(cx, o.y - 5);
-    this.ctx.lineTo(cx, o.y - handleDist); 
+    this.ctx.lineTo(cx, o.y - handleDist);
     this.ctx.stroke();
 
     this.ctx.beginPath();
-    this.ctx.arc(cx, o.y - handleDist, 6, 0, Math.PI * 2); 
+    this.ctx.arc(cx, o.y - handleDist, 6, 0, Math.PI * 2);
     this.ctx.fillStyle = '#ff4757';
     this.ctx.fill();
     this.ctx.strokeStyle = '#fff';
     this.ctx.stroke();
 
-    this.ctx.restore(); 
+    this.ctx.restore();
   }
 }

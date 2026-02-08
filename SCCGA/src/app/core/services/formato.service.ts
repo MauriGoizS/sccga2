@@ -15,7 +15,7 @@ import { FormatoDetalle } from '../models/formato.model'; // Importar la nueva
 export class FormatoService {
 
   // Ajusta si tu puerto es diferente (8000 es el default de FastAPI)
-  private apiUrl = 'http://127.0.0.1:8000';
+  private apiUrl = 'https://sccga2.onrender.com';
 
   constructor(
     private http: HttpClient,
@@ -95,7 +95,7 @@ export class FormatoService {
 
   subirPDF(id: number, archivo: Blob): Observable<any> {
     const formData = new FormData();
-    formData.append('file', archivo, `formato_${id}.pdf`); 
+    formData.append('file', archivo, `formato_${id}.pdf`);
     let headers = new HttpHeaders();
     if (isPlatformBrowser(this.platformId)) {
        const token = localStorage.getItem('token');

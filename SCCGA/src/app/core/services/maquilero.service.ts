@@ -10,7 +10,7 @@ export class MaquileroService {
   private http = inject(HttpClient);
 
   // URL base de tu backend (FastAPI)
-  private apiUrl = 'http://127.0.0.1:8000';
+  private apiUrl = 'https://sccga2.onrender.com';
 
   // --- HELPER PARA EL TOKEN (CORREGIDO) ---
   // Verifica si estamos en el navegador antes de llamar a localStorage

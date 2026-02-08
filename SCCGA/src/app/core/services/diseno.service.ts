@@ -17,14 +17,14 @@ export interface RespuestaPaginada {
 export class DisenoService {
 
   // Ajusta tu puerto si es necesario
-  private apiUrl = 'http://127.0.0.1:8000';
+  private apiUrl = 'https://sccga2.onrender.com';
 
   // --- VARIABLES DE MEMORIA (CACHÉ) ---
-  private cacheModelos: ModeloNuevo[] = []; 
+  private cacheModelos: ModeloNuevo[] = [];
 
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object 
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   private getHeaders(isFormData: boolean = false): HttpHeaders {
@@ -60,13 +60,13 @@ export class DisenoService {
    * Devuelve un Observable con { data: [], total: number }
    */
   getModelos(
-    skip: number = 0, 
-    limit: number = 50, 
-    q: string = '', 
-    forzarRecarga: boolean = false, 
+    skip: number = 0,
+    limit: number = 50,
+    q: string = '',
+    forzarRecarga: boolean = false,
     orden: string = 'fecha_desc'
-  ): Observable<RespuestaPaginada> { 
-    
+  ): Observable<RespuestaPaginada> {
+
     // CASO A: Tenemos datos en caché y no forzamos recarga -> Usamos memoria
     if (this.cacheModelos.length > 0 && !forzarRecarga) {
       return of(this.filtrarYPaginarLocalmente(this.cacheModelos, skip, limit, q, orden));
@@ -77,7 +77,7 @@ export class DisenoService {
       .pipe(
         tap(data => {
           console.log(`🌐 Datos descargados del servidor: ${data.length} registros.`);
-          this.cacheModelos = data || []; 
+          this.cacheModelos = data || [];
         }),
         map(data => this.filtrarYPaginarLocalmente(data, skip, limit, q, orden))
       );
@@ -89,15 +89,15 @@ export class DisenoService {
 
     if (q) {
       const termino = q.toLowerCase();
-      resultado = resultado.filter(m => 
-        (m.nombre_modelo || '').toLowerCase().includes(termino) || 
+      resultado = resultado.filter(m =>
+        (m.nombre_modelo || '').toLowerCase().includes(termino) ||
         (m.modelo || '').toLowerCase().includes(termino)
       );
     }
 
     switch (orden) {
       case 'nombre_asc':
-      case 'modelo_asc': 
+      case 'modelo_asc':
         resultado.sort((a, b) => (a.nombre_modelo || '').localeCompare(b.nombre_modelo || ''));
         break;
       case 'nombre_desc':
@@ -139,7 +139,7 @@ export class DisenoService {
   // =========================================================
   //   MÉTODOS CRUD ADICIONALES
   // =========================================================
-  
+
   // Registrar usando FormData (si necesitas enviar archivos físicos)
   registrarDiseno(formData: FormData): Observable<any> {
     return this.http.post<ModeloNuevo>(`${this.apiUrl}/modelo`, formData, { headers: this.getHeaders(true) })
