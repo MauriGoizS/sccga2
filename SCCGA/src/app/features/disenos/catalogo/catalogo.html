@@ -1,12 +1,12 @@
 <div class="catalogo-container">
-  
+
   <div class="header-section">
     <h1 class="catalogo-title">Catálogo de Diseños</h1>
     <p class="catalogo-subtitle">Gestiona y visualiza tus modelos disponibles</p>
   </div>
 
   <div class="toolbar-container">
-    
+
     <div class="search-input-wrapper">
       <span class="search-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -14,10 +14,10 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
       </span>
-      <input 
-        type="text" 
-        [formControl]="searchControl" 
-        placeholder="Buscar modelo o código..." 
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Buscar modelo o código..."
         class="search-input"
       >
     </div>
@@ -45,14 +45,14 @@
   </div>
 
   <div *ngIf="!isLoading && !errorMensaje && listaVisible.length > 0" class="cards-grid">
-    
+
     <div *ngFor="let item of listaVisible" class="card-diseno">
-      
+
       <div class="card-image-wrapper">
-        <img 
-          [src]="obtenerImagen(item.imagen2)" 
-          alt="{{ item.nombre_modelo }}" 
-          class="card-img" 
+        <img
+          [src]="item.imagen1 || item.imagen2"
+          alt="{{ item.nombre_modelo }}"
+          class="card-img"
           onerror="this.src='https://placehold.co/400x300/f3f4f6/9ca3af?text=Sin+Imagen'; this.onerror=null;"
         >
         <span class="card-badge">#{{ item.id_modelo }}</span>
@@ -87,14 +87,14 @@
     <button (click)="cambiarPagina(-1)" [disabled]="paginaActual === 1" class="btn-paginacion">
       ← Anterior
     </button>
-    
+
     <div class="page-input-container">
       <span class="page-label">Página</span>
-      <input 
-        type="number" 
-        [value]="paginaActual" 
+      <input
+        type="number"
+        [value]="paginaActual"
         (change)="irAPaginaManual($event)"
-        min="1" 
+        min="1"
         [max]="totalPaginas"
         class="input-pagina"
       >
