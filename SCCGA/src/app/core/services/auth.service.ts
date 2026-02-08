@@ -23,12 +23,6 @@ export class AuthService {
         );
     }
 
-    logout() {
-        // Borramos el token y mandamos al usuario al login
-        localStorage.removeItem('token');
-        this.router.navigate(['/login']);
-    }
-
     getToken(): string | null {
         return localStorage.getItem('token');
     }
