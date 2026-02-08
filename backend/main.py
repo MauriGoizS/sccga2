@@ -29,8 +29,7 @@ app = FastAPI()
 origins = [
     "http://localhost:4200",
     "http://https://sccga2.onrender.com:3000",
-    "https://productsccgacapilla.vercel.app", 
-    "https://sccga-web-final.vercel.app"
+    "https://sccga2-newprogram.vercel.app",
     "*"
 ]
 
