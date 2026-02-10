@@ -2,9 +2,9 @@
 .card-container {
   background: #ffffff;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  width: 96%;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  width: 95%;
   margin: 20px auto;
   box-sizing: border-box;
 }
@@ -12,129 +12,102 @@
 /* Título */
 .header-section h3 {
   margin: 0 0 20px;
-  color: #0e2b48;
+  color: #1e293b;
+  font-size: 1.5rem;
   font-weight: 700;
-  border-bottom: 2px solid #f3f4f6;
-  padding-bottom: 10px;
 }
 
-/* Contenedor de la tabla */
+/* Contenedor de la tabla responsivo */
 .table-responsive {
   overflow-x: auto;
   width: 100%;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 /* La Tabla */
 .custom-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1000px; /* Asegura que no se aplaste en pantallas chicas */
-  table-layout: fixed; /* Ayuda a respetar los anchos de columnas */
+  min-width: 800px; /* Reducido para que sea más flexible */
+  table-layout: auto; /* Cambiado a auto para que las columnas se adapten al contenido */
 }
 
 /* Celdas y Cabeceras */
 .custom-table th,
 .custom-table td {
-  padding: 12px 15px;
+  padding: 16px;
   text-align: left;
   vertical-align: middle;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #f1f5f9;
   font-size: 14px;
-  word-wrap: break-word; /* Permite que el texto baje si es muy largo */
 }
 
 .custom-table th {
-  background-color: #f8f9fa;
-  color: #1f2937;
+  background-color: #f8fafc;
+  color: #64748b;
   font-weight: 600;
   text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
-/* --- DISEÑO ESPECÍFICO PARA TALLAS --- */
+/* Filas con efecto hover */
+.custom-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Columna de detalles (Tallas) */
 .tallas-column {
+  max-width: 250px;
+  color: #475569;
   font-size: 13px;
-  color: #4b5563;
-  line-height: 1.6;        
-  white-space: pre-wrap;   
-  max-width: 350px;        
-  font-family: monospace;  
+  line-height: 1.4;
 }
 
-/* Centrar columnas específicas */
-.custom-table th:nth-child(4), 
-.custom-table td:nth-child(4),
-.custom-table th:last-child,
-.custom-table td:last-child {
-  text-align: center;
-}
-
-/* --- BADGES --- */
-.badge-proceso {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 20px;
-  background-color: #fff7ed;
-  color: #c2410c;
+/* --- BADGES (Estatus) --- */
+.badge-status {
+  display: inline-flex;
+  padding: 4px 12px;
+  border-radius: 9999px;
   font-weight: 600;
-  font-size: 12px;
-  border: 1px solid #ffedd5;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.badge-proceso {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 .badge-terminado {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 20px;
   background-color: #dcfce7;
-  color: #15803d;
-  font-weight: 600;
-  font-size: 12px;
-  border: 1px solid #bbf7d0;
+  color: #166534;
 }
 
-/* --- BOTONES --- */
+/* --- ACCIONES --- */
 .acciones-container {
   display: flex;
-  gap: 8px;
-  justify-content: center;
+  gap: 10px;
+  justify-content: flex-start;
 }
 
-.btn-check {
+.btn-action {
   border: none;
-  background: #22c55e;
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  transition: all 0.2s;
   font-size: 16px;
 }
-.btn-check:hover { background: #16a34a; transform: scale(1.05); }
 
-.btn-ver-pdf {
-  border: none;
-  background: #3b82f6;
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  font-size: 16px;
-}
-.btn-ver-pdf:hover { background: #2563eb; transform: scale(1.05); }
+.btn-check { background: #ecfdf5; color: #10b981; }
+.btn-check:hover { background: #10b981; color: white; }
 
-.text-center {
-  text-align: center;
-  color: #6b7280;
-  font-style: italic;
-  padding: 20px;
-}
+.btn-ver-pdf { background: #eff6ff; color: #3b82f6; }
+.btn-ver-pdf:hover { background: #3b82f6; color: white; }

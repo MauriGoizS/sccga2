@@ -1,98 +1,75 @@
 <div class="card-container">
-  
   <div class="header-section">
-    <h3>Control general de encargos</h3>
+    <h3>Control de Encargos</h3>
   </div>
 
   <div class="table-responsive">
     <table class="custom-table">
       <thead>
         <tr>
-          <th style="width: 15%;">Maquilero</th>
-          <th style="width: 15%;">Empresa</th>
-          
-          <th style="width: 30%;">Detalle de Modelos</th>
-          
-          <th style="width: 8%;">Piezas</th> <th style="width: 10%;">F. Encargo</th>
-          <th style="width: 10%;">F. Entrega</th>
-          <th style="width: 8%;">Estatus</th>
-          <th style="width: 4%;">Acciones</th>
+          <th>Maquilero</th>
+          <th>Empresa</th>
+          <th>Detalle de Modelos</th>
+          <th style="text-align: center;">Piezas</th>
+          <th>F. Encargo</th>
+          <th>F. Entrega</th>
+          <th style="text-align: center;">Estatus</th>
+          <th>Acciones</th>
         </tr>
       </thead>
 
       <tbody>
-        
         <tr *ngIf="cargando">
           <td colspan="8" class="text-center">
-            <div style="padding: 20px;">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-              </div>
-              <p style="margin-top: 10px; margin-bottom: 0;">Cargando datos...</p>
-            </div>
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Cargando datos...</p>
           </td>
         </tr>
 
         <tr *ngFor="let item of listaEncargos">
-          
-          <td style="font-weight: 600; color: #374151;">
-            {{ item.maquilero }}
+          <td>
+            <div style="font-weight: 600; color: #1e293b;">{{ item.maquilero }}</div>
           </td>
-
           <td>{{ item.empresa }}</td>
-
           <td class="tallas-column">
-            {{ item.tallas || 'Sin detalles registrados' }}
+            {{ item.tallas || 'Sin detalles' }}
           </td>
-
-          <td style="font-weight: bold; text-align: center; font-size: 15px;">
+          <td style="text-align: center; font-weight: 700;">
             {{ item.piezas_totales }}
           </td>
-
           <td>{{ item.fecha_encargo | date:'dd/MM/yyyy' }}</td>
-
           <td>
-            <span *ngIf="item.fecha_entrega; else sinFecha" style="color: #15803d; font-weight: 500;">
-              {{ item.fecha_entrega | date:'dd/MM/yyyy HH:mm' }}
+            <span *ngIf="item.fecha_entrega; else sinFecha" style="color: #059669; font-weight: 500;">
+              {{ item.fecha_entrega | date:'dd/MM/yy HH:mm' }}
             </span>
             <ng-template #sinFecha>
-              <span style="color: #9ca3af; font-style: italic; font-size: 13px;">Pendiente</span>
+              <span style="color: #94a3b8; font-style: italic;">Pendiente</span>
             </ng-template>
           </td>
-
           <td style="text-align: center;">
-            <span [ngClass]="{
+            <span class="badge-status" [ngClass]="{
               'badge-proceso': item.estatus === 'En proceso' || item.estatus === 'Pendiente',
               'badge-terminado': item.estatus === 'Terminado'
             }">
               {{ item.estatus }}
             </span>
           </td>
-
           <td>
             <div class="acciones-container">
-              <button *ngIf="item.estatus !== 'Terminado'" 
-                      class="btn-check" 
+              <button *ngIf="item.estatus !== 'Terminado'"
+                      class="btn-action btn-check"
                       (click)="marcarTerminado(item.id_formato)"
-                      title="Marcar lote como terminado">
+                      title="Terminar">
                 ✔
               </button>
-
-              <button class="btn-ver-pdf" 
-                      (click)="verPDF(item.id_formato)" 
-                      title="Ver PDF del Lote">
+              <button class="btn-action btn-ver-pdf"
+                      (click)="verPDF(item.id_formato)"
+                      title="Ver PDF">
                 📄
               </button>
             </div>
           </td>
         </tr>
-
-        <tr *ngIf="!cargando && listaEncargos.length === 0">
-          <td colspan="8" class="text-center">
-            No hay encargos registrados en el sistema.
-          </td>
-        </tr>
-
       </tbody>
     </table>
   </div>
