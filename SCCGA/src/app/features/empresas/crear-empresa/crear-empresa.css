@@ -1,126 +1,80 @@
 /* --- CONTENEDOR PRINCIPAL --- */
 .registro-container {
-    max-width: 1100px;
-    margin: 40px auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 0 20px;
+    max-width: 1000px; /* Un poco más angosto para que no se vea tan estirado */
+    margin: 20px auto; /* Reducido de 40px a 20px */
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    padding: 0 15px;
 }
 
 .card-body {
-    background-color: #f4f6f9;
-    padding: 40px 30px;
+    background-color: #f4f6f9; /* Tu color de fondo actual */
+    padding: 25px; /* Reducido de 40px a 25px */
     border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 /* --- TÍTULO --- */
 .form-title {
     color: #0e2b48;
-    font-size: 2rem;
+    font-size: 1.6rem; /* Reducido de 2rem a 1.6rem */
     font-weight: 800;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-/* --- GRID SYSTEM (3 Columnas) - ESTÁNDAR --- */
-.form-grid {
+/* --- GRID SYSTEM --- */
+.form-grid, .grid-centered-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    /* 3 columnas idénticas */
-    gap: 25px;
-    margin-bottom: 20px;
+    gap: 15px; /* Reducido de 25px a 15px para compactar */
+    margin-bottom: 15px;
 }
 
-/* --- GRID SYSTEM (Fila Centrada) - LA SOLUCIÓN --- */
-/* Usamos la misma estructura de grid para que las medidas sean exactas */
-.grid-centered-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* MISMAS columnas que arriba */
-    gap: 25px;
-    /* MISMO espacio */
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-/* Esta clase fuerza al elemento a vivir en la columna 2 (la del medio) */
 .center-column {
     grid-column: 2;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Centramos solo el texto del label y el error, el input ocupará el ancho de la columna */
-.center-column label,
-.center-column .error-message {
-    text-align: center;
 }
 
 /* --- ESTILOS DE INPUTS --- */
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
 .form-group label {
-    color: #555;
-    font-size: 0.95rem;
-    margin-bottom: 8px;
+    color: #444;
+    font-size: 0.85rem; /* Letra un poco más chica */
+    margin-bottom: 5px;
     font-weight: 600;
 }
 
 .form-input {
-    height: 45px;
-    border: 2px solid #0e2b48;
-    border-radius: 8px;
-    padding: 0 15px;
-    font-size: 1rem;
-    color: #333;
-    background-color: #fff;
-    outline: none;
-    transition: all 0.3s ease;
-    width: 100%;
-    box-sizing: border-box;
+    height: 38px; /* Reducido de 45px a 38px */
+    border: 1.5px solid #cbd5e1; /* Borde más sutil */
+    border-radius: 6px;
+    padding: 0 12px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
 }
 
 .form-input:focus {
-    box-shadow: 0 0 0 4px rgba(14, 43, 72, 0.15);
     border-color: #0e2b48;
+    box-shadow: 0 0 0 3px rgba(14, 43, 72, 0.1);
 }
 
-.form-input::placeholder {
-    color: #bbb;
-}
-
-/* --- ERRORES --- */
-.error-message {
-    color: #dc3545;
-    font-size: 0.8rem;
-    margin-top: 5px;
-    font-weight: 500;
-}
-
-.ng-invalid.ng-touched:not(form) {
-    border-color: #dc3545;
-}
-
-/* --- SEPARADORES --- */
+/* --- SEPARADORES (CORRECCIÓN DE COLOR) --- */
 .section-divider {
     position: relative;
     text-align: center;
-    margin: 35px 0 25px 0;
+    margin: 25px 0 15px 0; /* Espacios más ajustados */
 }
 
 .section-divider h3 {
-    color: #555;
-    font-size: 1.1rem;
-    font-weight: 400;
-    background: #fff;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: #f4f6f9; /* IGUAL AL FONDO DE LA CARD */
     padding: 0 15px;
     display: inline-block;
-    z-index: 2;
     position: relative;
+    z-index: 2;
 }
 
 .section-divider::before {
@@ -130,78 +84,36 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: #e0e0e0;
+    background: #cbd5e1; /* Línea más marcada pero fina */
     z-index: 1;
 }
 
 /* --- BOTÓN --- */
-.button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-}
-
 .btn-registrar {
     background-color: #0e2b48;
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 14px 100px;
-    font-size: 1.1rem;
+    border-radius: 6px;
+    padding: 12px 60px; /* Más balanceado */
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: auto;
+    min-width: 200px;
 }
 
-.btn-registrar:hover:not(:disabled) {
-    background-color: #163c63;
-    transform: translateY(-2px);
-}
-
-.btn-registrar:disabled {
-    background-color: #a0aeb9;
-    cursor: not-allowed;
-}
-
-/* --- ALERTAS --- */
-.alert {
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-    text-align: center;
-    font-weight: 600;
-}
-
-.alert-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-/* --- RESPONSIVE (MÓVIL) --- */
-@media (max-width: 768px) {
-
-    .form-grid,
-    .grid-centered-row {
-        grid-template-columns: 1fr;
-        /* Todo a 1 columna */
-        gap: 15px;
+/* --- RESPONSIVE --- */
+@media (max-width: 850px) {
+    .form-grid, .grid-centered-row {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
     }
+    .center-column { grid-column: span 2; }
+}
 
-    .center-column {
-        grid-column: 1;
-        /* En móvil, ocupa la única columna disponible */
+@media (max-width: 550px) {
+    .form-grid, .grid-centered-row {
+        grid-template-columns: 1fr; /* 1 columna en celulares */
     }
-
-    .btn-registrar {
-        width: 100%;
-        padding: 14px;
-    }
+    .center-column { grid-column: 1; }
+    .card-body { padding: 15px; }
 }
