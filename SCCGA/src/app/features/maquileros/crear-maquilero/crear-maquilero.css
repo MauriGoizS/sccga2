@@ -1,57 +1,43 @@
 /* --- CONTENEDOR PRINCIPAL --- */
 .registro-container {
     max-width: 1100px;
-    margin: 40px auto;
+    margin: 10px auto; /* Reducido para evitar aire innecesario */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 0 20px;
 }
 
+/* Quitamos el fondo sólido y el padding excesivo para que no parezca una tarjeta flotante */
 .card-body {
-    background-color: #f4f6f9;
-    padding: 40px 30px;
-    border-radius: 12px;
+    background-color: transparent;
+    padding: 10px 0;
 }
 
 /* --- TÍTULO --- */
 .form-title {
     color: #0e2b48;
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 800;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-/* --- GRID SYSTEM (3 Columnas) - ESTÁNDAR --- */
-.form-grid {
+/* --- GRID SYSTEM --- */
+.form-grid, .grid-centered-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    /* 3 columnas idénticas */
-    gap: 25px;
-    margin-bottom: 20px;
+    gap: 15px; /* Reducido de 25px a 15px */
+    margin-bottom: 10px;
 }
 
-/* --- GRID SYSTEM (Fila Centrada) - LA SOLUCIÓN --- */
-/* Usamos la misma estructura de grid para que las medidas sean exactas */
-.grid-centered-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* MISMAS columnas que arriba */
-    gap: 25px;
-    /* MISMO espacio */
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-/* Esta clase fuerza al elemento a vivir en la columna 2 (la del medio) */
 .center-column {
     grid-column: 2;
     display: flex;
     flex-direction: column;
 }
 
-/* Centramos solo el texto del label y el error, el input ocupará el ancho de la columna */
+/* Centramos textos en columnas solitarias */
 .center-column label,
 .center-column .error-message {
     text-align: center;
@@ -65,17 +51,17 @@
 
 .form-group label {
     color: #555;
-    font-size: 0.95rem;
-    margin-bottom: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 4px; /* Más pegado al input */
     font-weight: 600;
 }
 
 .form-input {
-    height: 45px;
+    height: 40px; /* Reducido de 45px a 40px */
     border: 2px solid #0e2b48;
     border-radius: 8px;
-    padding: 0 15px;
-    font-size: 1rem;
+    padding: 0 12px;
+    font-size: 0.95rem;
     color: #333;
     background-color: #fff;
     outline: none;
@@ -89,34 +75,18 @@
     border-color: #0e2b48;
 }
 
-.form-input::placeholder {
-    color: #bbb;
-}
-
-/* --- ERRORES --- */
-.error-message {
-    color: #dc3545;
-    font-size: 0.8rem;
-    margin-top: 5px;
-    font-weight: 500;
-}
-
-.ng-invalid.ng-touched:not(form) {
-    border-color: #dc3545;
-}
-
-/* --- SEPARADORES --- */
+/* --- SEPARADORES (CON FONDO CORREGIDO) --- */
 .section-divider {
     position: relative;
     text-align: center;
-    margin: 35px 0 25px 0;
+    margin: 20px 0 15px 0;
 }
 
 .section-divider h3 {
     color: #555;
-    font-size: 1.1rem;
-    font-weight: 400;
-    background: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    background: #f4f6f9; /* Fondo gris de la página para que no se vea el parche blanco */
     padding: 0 15px;
     display: inline-block;
     z-index: 2;
@@ -138,7 +108,7 @@
 .button-container {
     display: flex;
     justify-content: center;
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 .btn-registrar {
@@ -146,62 +116,40 @@
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 14px 100px;
-    font-size: 1.1rem;
+    padding: 12px 80px; /* Un poco más compacto */
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-registrar:hover:not(:disabled) {
     background-color: #163c63;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
-.btn-registrar:disabled {
-    background-color: #a0aeb9;
-    cursor: not-allowed;
+/* --- ERRORES Y ALERTAS --- */
+.error-message {
+    color: #dc3545;
+    font-size: 0.75rem;
+    margin-top: 3px;
+    font-weight: 500;
 }
 
-/* --- ALERTAS --- */
 .alert {
-    padding: 15px;
+    padding: 10px;
     border-radius: 8px;
-    margin-top: 20px;
+    margin-top: 15px;
     text-align: center;
-    font-weight: 600;
+    font-size: 0.9rem;
 }
 
-.alert-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-/* --- RESPONSIVE (MÓVIL) --- */
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
-
-    .form-grid,
-    .grid-centered-row {
+    .form-grid, .grid-centered-row {
         grid-template-columns: 1fr;
-        /* Todo a 1 columna */
-        gap: 15px;
+        gap: 12px;
     }
-
-    .center-column {
-        grid-column: 1;
-        /* En móvil, ocupa la única columna disponible */
-    }
-
-    .btn-registrar {
-        width: 100%;
-        padding: 14px;
-    }
+    .center-column { grid-column: 1; }
+    .btn-registrar { width: 100%; }
 }
