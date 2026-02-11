@@ -171,12 +171,8 @@ export class CrearFormatoComponent implements OnInit {
     });
   }
 
-  // --- CORRECCIÓN AQUÍ: Soporte para URLs externas (Cloudinary) ---
   private procesarImagen(ruta: string, callback: (res: any) => void) {
     let urlLimpia = String(ruta).replace(/\\/g, '/');
-
-    // Si la ruta YA empieza con http (es externa), la usamos tal cual.
-    // Si NO (es local), le pegamos el baseUrl.
     const urlFinal = urlLimpia.startsWith('http')
       ? urlLimpia
       : `${this.baseUrl}${urlLimpia}`;
@@ -187,6 +183,7 @@ export class CrearFormatoComponent implements OnInit {
         reader.onloadend = () => {
           if (reader.result) {
             const img = new Image();
+            // Guardamos las dimensiones originales de la imagen
             img.onload = () => callback({ base64: reader.result as string, width: img.width, height: img.height });
             img.src = reader.result as string;
           }
@@ -199,7 +196,6 @@ export class CrearFormatoComponent implements OnInit {
       }
     });
   }
-  // -------------------------------------------------------------
 
   cargarLogoParaPDF(): void {
     this.http.get(this.rutaLogo, { responseType: 'blob' }).subscribe(blob => {
@@ -216,7 +212,6 @@ export class CrearFormatoComponent implements OnInit {
   private generarPDF(preview: boolean): void {
     if (this.modelosSeleccionados.length === 0) return;
 
-    // Verificar si hay alguna imagen que debería estar pero aún no ha cargado
     const imagenesPendientes = this.modelosSeleccionados.some(m => {
         const detalles = this.cacheDetalles.get(m.id_modelo || 0);
         if (m.imagen1 && !detalles?.img1) return true;
@@ -268,6 +263,7 @@ export class CrearFormatoComponent implements OnInit {
       let currentY = 52;
 
       // 3. Bloque de Datos (Rectángulo gris)
+      // La barra gris empieza en X=10 y tiene un ancho de (pageWidth - 20)
       doc.setFillColor(242, 242, 242);
       doc.rect(10, currentY, pageWidth - 20, 18, 'F');
       doc.setFontSize(10);
@@ -282,37 +278,63 @@ export class CrearFormatoComponent implements OnInit {
 
       currentY += 25;
 
-      // 4. IMÁGENES CENTRADAS
+      // 4. IMÁGENES
       const detalles = this.cacheDetalles.get(modelo.id_modelo || 0);
-      const imgWidth = 105;
-      const imgHeight = 85;
-      const centerX = (pageWidth - imgWidth) / 2;
 
       // Imagen 1: Canvas (Frente)
       if (detalles?.img1) {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'bold');
         doc.text("ESQUEMA TÉCNICO DE DISEÑO", pageWidth / 2, currentY, { align: 'center' });
-        currentY += 4;
+        currentY += 5; // Un poco más de espacio para el título
 
-        // Detección de formato (PNG vs JPEG)
+        // --- CÁLCULO DE DIMENSIONES DINÁMICAS ---
+
+        // 1. Ancho deseado: El mismo que la barra gris (ancho de página menos márgenes de 10mm)
+        const targetWidth = pageWidth - 20;
+        const startX = 10; // Misma coordenada X donde empieza la barra gris
+
+        // 2. Usamos las dimensiones originales que guardamos al descargar
+        const originalWidth = detalles.img1.width;
+        const originalHeight = detalles.img1.height;
+
+        // 3. Calculamos la altura proporcional (regla de tres) para que NO se deforme
+        const aspectRatio = originalHeight / originalWidth;
+        const targetHeight = targetWidth * aspectRatio;
+
+        // Detección de formato
         let formatoImagen = 'PNG';
         if (detalles.img1.base64.includes('image/jpeg') || detalles.img1.base64.includes('image/jpg')) {
             formatoImagen = 'JPEG';
         }
 
-        doc.addImage(detalles.img1.base64, formatoImagen, centerX, currentY, imgWidth, imgHeight);
+        // Usamos las nuevas dimensiones calculadas
+        doc.addImage(detalles.img1.base64, formatoImagen, startX, currentY, targetWidth, targetHeight);
+
+        // IMPORTANTE: Actualizamos currentY para que lo que sigue no quede encima de la imagen
+        currentY += targetHeight + 10;
+        // ---------------------------------------
       }
 
       // 5. Observaciones (Al final de la hoja)
+      // Usamos el currentY actualizado para asegurarnos que no se superponga
+      // Si la imagen es muy alta, verificamos que no se salga de la página.
+      const espacioParaFirma = 30;
+      if (currentY > pageHeight - espacioParaFirma - 20) {
+        doc.addPage(); // Nueva página si no cabe
+        currentY = 20;
+      }
+
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
-      doc.text('OBSERVACIONES GENERALES:', 15, pageHeight - 40);
+      doc.text('OBSERVACIONES GENERALES:', 15, currentY);
+      currentY += 5;
+
       doc.setFont('helvetica', 'normal');
       const obs = doc.splitTextToSize(formData.observaciones || 'Sin observaciones.', pageWidth - 30);
-      doc.text(obs, 15, pageHeight - 35);
+      doc.text(obs, 15, currentY);
 
-      // 6. Firma
+      // 6. Firma (Siempre al final de la página)
       doc.setDrawColor(180);
       doc.line(pageWidth / 2 - 35, pageHeight - 15, pageWidth / 2 + 35, pageHeight - 15);
       doc.setFontSize(8);
