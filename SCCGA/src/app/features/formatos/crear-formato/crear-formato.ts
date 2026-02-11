@@ -203,6 +203,27 @@ export class CrearFormatoComponent implements OnInit {
 
   private generarPDF(preview: boolean): void {
     if (this.modelosSeleccionados.length === 0) return;
+
+    // --- CORRECCIÓN 1: VALIDACIÓN DE CARGA DE IMÁGENES ---
+    // Verificar si hay alguna imagen que debería estar pero aún no ha cargado (está null en caché)
+    const imagenesPendientes = this.modelosSeleccionados.some(m => {
+        const detalles = this.cacheDetalles.get(m.id_modelo || 0);
+        // Si el modelo tiene ruta de imagen (imagen1) pero en cacheDetalles.img1 sigue siendo null
+        if (m.imagen1 && !detalles?.img1) return true;
+        return false;
+    });
+
+    if (imagenesPendientes) {
+        Swal.fire({
+            title: 'Cargando imágenes...',
+            text: 'Por favor espera unos segundos a que se descarguen las imágenes del servidor.',
+            icon: 'info',
+            timer: 2000
+        });
+        return;
+    }
+    // -----------------------------------------------------
+
     const doc = this.construirPDF();
     if (preview) window.open(doc.output('bloburl'), '_blank');
     else doc.save(`Especificaciones_${new Date().getTime()}.pdf`);
@@ -258,14 +279,24 @@ export class CrearFormatoComponent implements OnInit {
       const imgHeight = 85;
       const centerX = (pageWidth - imgWidth) / 2;
 
-      // Imagen 1: Canvas (Frente) -> ESTA SE MUESTRA
+      // Imagen 1: Canvas (Frente) -> AQUÍ ESTABA EL ERROR
       if (detalles?.img1) {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'bold');
         doc.text("ESQUEMA TÉCNICO DE DISEÑO", pageWidth / 2, currentY, { align: 'center' });
         currentY += 4;
 
-        doc.addImage(detalles.img1.base64, 'PNG', centerX, currentY, imgWidth, imgHeight);
+        // --- CORRECCIÓN 2: DETECCIÓN DE FORMATO (PNG vs JPEG) ---
+        let formatoImagen = 'PNG'; // Valor por defecto
+
+        // Verificamos si la cabecera del base64 dice "image/jpeg"
+        if (detalles.img1.base64.includes('image/jpeg') || detalles.img1.base64.includes('image/jpg')) {
+            formatoImagen = 'JPEG';
+        }
+
+        // Ahora pasamos la variable 'formatoImagen' en lugar del string fijo 'PNG'
+        doc.addImage(detalles.img1.base64, formatoImagen, centerX, currentY, imgWidth, imgHeight);
+        // --------------------------------------------------------
       }
 
       // 5. Observaciones (Al final de la hoja)
@@ -290,7 +321,7 @@ export class CrearFormatoComponent implements OnInit {
     // 1. VALIDACIÓN: Campos Generales (Empresa, Maquilero, Estatus)
     if (this.formEncargo.invalid) {
       Swal.fire('Atención', 'Por favor selecciona Empresa, Maquilero y Estatus para continuar.', 'warning');
-      this.formEncargo.markAllAsTouched(); // Marca los campos en rojo si tienes validaciones CSS
+      this.formEncargo.markAllAsTouched();
       return;
     }
 
@@ -302,16 +333,12 @@ export class CrearFormatoComponent implements OnInit {
 
     // 3. VALIDACIÓN ESTRICTA: Verificar tallas y cantidades por modelo
     const modelosSinTallas = this.modelosSeleccionados.filter(modelo => {
-        // Calculamos cuántas piezas válidas tiene este modelo
         const totalPiezasModelo = modelo.tallas.reduce((acc, t) => {
-            // Debe estar seleccionada y tener una cantidad mayor a 0
             if (t.seleccionada && t.cantidad && Number(t.cantidad) > 0) {
                 return acc + Number(t.cantidad);
             }
             return acc;
         }, 0);
-
-        // Si el total es 0, este modelo está incompleto
         return totalPiezasModelo === 0;
     });
 
@@ -338,7 +365,6 @@ export class CrearFormatoComponent implements OnInit {
 
     // 4. Preparamos una petición de GUARDADO DE DATOS por cada modelo
     const peticionesDatos = this.modelosSeleccionados.map(modelo => {
-      // Filtro de tallas
       const detallesTallas = modelo.tallas
         .filter(t => t.seleccionada && t.cantidad && t.cantidad > 0)
         .map(t => ({
@@ -358,42 +384,37 @@ export class CrearFormatoComponent implements OnInit {
         detalles: detallesTallas
       };
 
-      // Usamos 'as any' para evitar el error de tipos de TypeScript
       return this.formatoService.crearEncargo(payload as any);
     });
 
     // 5. Ejecutamos el guardado de DATOS
     forkJoin(peticionesDatos).subscribe({
       next: (respuestas) => {
-        // --- AQUÍ COMIENZA LA SUBIDA DEL PDF ---
-
         console.log('Datos guardados. IDs generados:', respuestas);
 
-        // a) Generamos el PDF en memoria (sin descargar aún)
+        // --- VALIDACIÓN EXTRA ANTES DE SUBIR ---
+        // Aseguramos que las imágenes estén listas antes de generar el PDF final para subir
+        // Esto es raro que falle aquí porque ya pasó tiempo, pero es bueno prevenir.
         const pdfBlob = this.construirPDF().output('blob');
 
-        // b) Preparamos las subidas del archivo.
         const peticionesSubida = respuestas.map((res: any) =>
           this.formatoService.subirPDF(res.id_formato, pdfBlob)
         );
 
-        // c) Ejecutamos las subidas
         forkJoin(peticionesSubida).subscribe({
           next: () => {
-            // TODO ÉXITO: Datos guardados y Archivos subidos
             Swal.fire({
               title: '¡Éxito!',
               text: 'Encargos registrados y PDF subido al servidor correctamente.',
               icon: 'success',
               timer: 2000
             }).then(() => {
-              this.descargarPDF(); // Descarga copia local para el usuario
-              this.limpiarTodo();  // Limpia el formulario
+              this.descargarPDF();
+              this.limpiarTodo();
             });
           },
           error: (errSubida) => {
             console.error('Error subiendo PDF:', errSubida);
-            // Éxito parcial: Se guardaron datos, pero falló el archivo
             Swal.fire('Advertencia', 'Los datos se guardaron, pero hubo un error al subir el PDF al servidor.', 'warning');
           }
         });
