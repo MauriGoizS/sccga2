@@ -171,9 +171,17 @@ export class CrearFormatoComponent implements OnInit {
     });
   }
 
+  // --- CORRECCIÓN AQUÍ: Soporte para URLs externas (Cloudinary) ---
   private procesarImagen(ruta: string, callback: (res: any) => void) {
-    const url = `${this.baseUrl}${String(ruta).replace(/\\/g, '/')}`;
-    this.http.get(url, { responseType: 'blob' }).subscribe({
+    let urlLimpia = String(ruta).replace(/\\/g, '/');
+
+    // Si la ruta YA empieza con http (es externa), la usamos tal cual.
+    // Si NO (es local), le pegamos el baseUrl.
+    const urlFinal = urlLimpia.startsWith('http')
+      ? urlLimpia
+      : `${this.baseUrl}${urlLimpia}`;
+
+    this.http.get(urlFinal, { responseType: 'blob' }).subscribe({
       next: (blob) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -185,9 +193,13 @@ export class CrearFormatoComponent implements OnInit {
         };
         reader.readAsDataURL(blob);
       },
-      error: () => callback(null)
+      error: (err) => {
+        console.error('Error descargando imagen:', urlFinal, err);
+        callback(null);
+      }
     });
   }
+  // -------------------------------------------------------------
 
   cargarLogoParaPDF(): void {
     this.http.get(this.rutaLogo, { responseType: 'blob' }).subscribe(blob => {
@@ -204,11 +216,9 @@ export class CrearFormatoComponent implements OnInit {
   private generarPDF(preview: boolean): void {
     if (this.modelosSeleccionados.length === 0) return;
 
-    // --- CORRECCIÓN 1: VALIDACIÓN DE CARGA DE IMÁGENES ---
-    // Verificar si hay alguna imagen que debería estar pero aún no ha cargado (está null en caché)
+    // Verificar si hay alguna imagen que debería estar pero aún no ha cargado
     const imagenesPendientes = this.modelosSeleccionados.some(m => {
         const detalles = this.cacheDetalles.get(m.id_modelo || 0);
-        // Si el modelo tiene ruta de imagen (imagen1) pero en cacheDetalles.img1 sigue siendo null
         if (m.imagen1 && !detalles?.img1) return true;
         return false;
     });
@@ -222,7 +232,6 @@ export class CrearFormatoComponent implements OnInit {
         });
         return;
     }
-    // -----------------------------------------------------
 
     const doc = this.construirPDF();
     if (preview) window.open(doc.output('bloburl'), '_blank');
@@ -279,24 +288,20 @@ export class CrearFormatoComponent implements OnInit {
       const imgHeight = 85;
       const centerX = (pageWidth - imgWidth) / 2;
 
-      // Imagen 1: Canvas (Frente) -> AQUÍ ESTABA EL ERROR
+      // Imagen 1: Canvas (Frente)
       if (detalles?.img1) {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'bold');
         doc.text("ESQUEMA TÉCNICO DE DISEÑO", pageWidth / 2, currentY, { align: 'center' });
         currentY += 4;
 
-        // --- CORRECCIÓN 2: DETECCIÓN DE FORMATO (PNG vs JPEG) ---
-        let formatoImagen = 'PNG'; // Valor por defecto
-
-        // Verificamos si la cabecera del base64 dice "image/jpeg"
+        // Detección de formato (PNG vs JPEG)
+        let formatoImagen = 'PNG';
         if (detalles.img1.base64.includes('image/jpeg') || detalles.img1.base64.includes('image/jpg')) {
             formatoImagen = 'JPEG';
         }
 
-        // Ahora pasamos la variable 'formatoImagen' en lugar del string fijo 'PNG'
         doc.addImage(detalles.img1.base64, formatoImagen, centerX, currentY, imgWidth, imgHeight);
-        // --------------------------------------------------------
       }
 
       // 5. Observaciones (Al final de la hoja)
@@ -318,20 +323,20 @@ export class CrearFormatoComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // 1. VALIDACIÓN: Campos Generales (Empresa, Maquilero, Estatus)
+    // 1. VALIDACIÓN: Campos Generales
     if (this.formEncargo.invalid) {
       Swal.fire('Atención', 'Por favor selecciona Empresa, Maquilero y Estatus para continuar.', 'warning');
       this.formEncargo.markAllAsTouched();
       return;
     }
 
-    // 2. VALIDACIÓN: Al menos un modelo seleccionado
+    // 2. VALIDACIÓN: Modelos seleccionados
     if (this.modelosSeleccionados.length === 0) {
       Swal.fire('Atención', 'Debes seleccionar al menos un modelo de la lista.', 'warning');
       return;
     }
 
-    // 3. VALIDACIÓN ESTRICTA: Verificar tallas y cantidades por modelo
+    // 3. VALIDACIÓN ESTRICTA: Tallas
     const modelosSinTallas = this.modelosSeleccionados.filter(modelo => {
         const totalPiezasModelo = modelo.tallas.reduce((acc, t) => {
             if (t.seleccionada && t.cantidad && Number(t.cantidad) > 0) {
@@ -353,9 +358,8 @@ export class CrearFormatoComponent implements OnInit {
         return;
     }
 
-    // --- SI TODO ESTÁ CORRECTO, PROCEDEMOS ---
+    // --- GUARDADO ---
 
-    // Mostrar loading
     Swal.fire({
       title: 'Procesando...',
       text: 'Registrando datos y subiendo archivos',
@@ -363,7 +367,6 @@ export class CrearFormatoComponent implements OnInit {
       didOpen: () => Swal.showLoading()
     });
 
-    // 4. Preparamos una petición de GUARDADO DE DATOS por cada modelo
     const peticionesDatos = this.modelosSeleccionados.map(modelo => {
       const detallesTallas = modelo.tallas
         .filter(t => t.seleccionada && t.cantidad && t.cantidad > 0)
@@ -387,14 +390,8 @@ export class CrearFormatoComponent implements OnInit {
       return this.formatoService.crearEncargo(payload as any);
     });
 
-    // 5. Ejecutamos el guardado de DATOS
     forkJoin(peticionesDatos).subscribe({
       next: (respuestas) => {
-        console.log('Datos guardados. IDs generados:', respuestas);
-
-        // --- VALIDACIÓN EXTRA ANTES DE SUBIR ---
-        // Aseguramos que las imágenes estén listas antes de generar el PDF final para subir
-        // Esto es raro que falle aquí porque ya pasó tiempo, pero es bueno prevenir.
         const pdfBlob = this.construirPDF().output('blob');
 
         const peticionesSubida = respuestas.map((res: any) =>
