@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, PLATFORM_ID, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ViewChild, ElementRef, AfterViewInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -80,8 +80,8 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
     { type: 'triangle', icon: '▲' },
     { type: 'diamond', icon: '💎' },
     { type: 'star5', icon: '⭐' },
-    { type: 'arrow', icon: '➔' },      // Flecha Gruesa (Forma)
-    { type: 'arrow-thin', icon: '→' }  // <--- NUEVA FLECHA DELGADA
+    { type: 'arrow', icon: '➔' },
+    { type: 'arrow-thin', icon: '→' }
   ];
 
   closedShapes = ['rect', 'circle', 'triangle', 'diamond', 'star5', 'arrow'];
@@ -92,6 +92,7 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private platformId = inject(PLATFORM_ID);
   private sanitizer = inject(DomSanitizer);
+  private cdr = inject(ChangeDetectorRef); // Inyectado correctamente aquí
 
   constructor() {
     this.designForm = this.fb.group({
@@ -119,38 +120,32 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // --- MANEJO DIRECTO DE TECLADO ---
   @HostListener('window:keydown', ['$event'])
   manejarTeclado(event: KeyboardEvent) {
     const target = event.target as HTMLElement;
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
-
     if (!this.selectedObject) return;
 
     if (this.selectedObject.type === 'text') {
       const obj = this.selectedObject;
       if (!obj.text) obj.text = "";
-
       if (event.key === 'Backspace') {
         event.preventDefault();
         obj.text = obj.text.slice(0, -1);
         this.redrawAll();
         return;
       }
-
       if (event.key === 'Enter') {
         event.preventDefault();
         obj.text += '\n';
         this.redrawAll();
         return;
       }
-
       if (event.key === 'Delete') {
         event.preventDefault();
         this.eliminarObjetoSeleccionado();
         return;
       }
-
       if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
         event.preventDefault();
         obj.text += event.key;
@@ -174,6 +169,7 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
           const fullUrl = diseno.imagen2.startsWith('http') ? diseno.imagen2 : `${BACKEND_URL}/${pathLimpio}`;
           this.imagenReferenciaPreview = this.sanitizer.bypassSecurityTrustUrl(fullUrl);
           this.imagenReferenciaBase64 = diseno.imagen2;
+          this.cdr.detectChanges(); // Forzar carga de imagen al editar
         }
         const ops = this.operaciones; ops.clear();
         if (diseno.operaciones) diseno.operaciones.forEach((op: any) => ops.push(this.fb.group({ nombre_operacion: [op.nombre_operacion] })));
@@ -204,6 +200,7 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
         img.onload = () => {
           const n: CanvasObject = { id: Date.now(), type: 'image', x: 100, y: 100, width: 200, height: 200 * (img.height / img.width), strokeColor: '', fillColor: '', thickness: 0, rotation: 0, imgElement: img, text: ev.target.result };
           this.canvasObjects.push(n); this.seleccionarObjeto(n); this.redrawAll();
+          this.cdr.detectChanges();
         };
         img.src = ev.target.result;
       };
@@ -214,46 +211,40 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   onSeleccionarImagenReferencia(e: Event) {
     const input = e.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-      // 1. Guardamos el archivo original para procesarlo después
       this.archivoReferencia = input.files[0];
-
-      // 2. Solo para mostrar la preview en pantalla (sin lógica compleja)
       const reader = new FileReader();
       reader.onload = (ev: any) => {
         this.imagenReferenciaPreview = this.sanitizer.bypassSecurityTrustUrl(ev.target.result);
+        // FIX: Esto hace que la imagen aparezca sin tener que dar otro clic
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(input.files[0]);
     }
   }
 
-  // Modifica también el de quitar
   quitarImagenReferencia() {
     this.imagenReferenciaPreview = null;
     this.imagenReferenciaBase64 = null;
-    this.archivoReferencia = null; // Limpiamos el archivo
+    this.archivoReferencia = null;
+    this.cdr.detectChanges();
   }
 
- async onSubmit() {
+  async onSubmit() {
     if (this.designForm.invalid) {
       Swal.fire('Atención', 'Datos incompletos', 'warning');
       return;
     }
 
-    // 1. Preparar captura del Canvas (Esto ya lo tenías bien)
     const objetoSeleccionadoTemp = this.selectedObject;
     this.selectedObject = null;
     this.redrawAll();
 
-    // Captura del diseño dibujado (Canvas)
     const imagenLimpia = this.canvasRef.nativeElement.toDataURL('image/png');
-
     this.selectedObject = objetoSeleccionadoTemp;
     this.redrawAll();
 
-    // 2. CONVERSIÓN DE LA IMAGEN REFERENCIA (NUEVO)
-    let imagen2String = this.imagenReferenciaBase64; // Por si venía de editar (ya era string)
+    let imagen2String = this.imagenReferenciaBase64;
 
-    // Si el usuario subió un archivo NUEVO, lo convertimos ahora mismo
     if (this.archivoReferencia) {
       try {
         imagen2String = await this.toBase64(this.archivoReferencia);
@@ -264,7 +255,6 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
       }
     }
 
-    // 3. Preparar el JSON final
     const formValues = this.designForm.getRawValue();
     const serializableObjects = this.canvasObjects.map(obj => ({
       ...obj,
@@ -277,14 +267,11 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
       id_categoria: Number(formValues.id_categoria),
       modelo: formValues.modelo,
       canvas_json: JSON.stringify(serializableObjects),
-
-      imagen_resultado: imagenLimpia,  // Canvas (Base64)
-      imagen2: imagen2String,          // Referencia (Base64 garantizado)
-
+      imagen_resultado: imagenLimpia,
+      imagen2: imagen2String,
       operaciones: formValues.operaciones
     };
 
-    // 4. Enviar al Backend
     if (this.isEditMode && this.disenoId) finalPayload.id_modelo = this.disenoId;
 
     const req = (this.isEditMode && this.disenoId)
@@ -307,9 +294,7 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
     if (!this.ctx) return;
     this.ctx.fillStyle = 'white';
     this.ctx.fillRect(0, 0, 800, 500);
-
     this.canvasObjects.forEach(obj => this.drawFullShape(obj));
-
     if (this.selectedObject) {
       this.drawSelectionUI(this.selectedObject);
     }
@@ -317,15 +302,12 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
 
   drawFullShape(o: CanvasObject) {
     this.ctx.save();
-
-    // --- LÓGICA DE ROTACIÓN ---
     const cx = o.x + o.width / 2;
     const cy = o.y + o.height / 2;
     this.ctx.translate(cx, cy);
     this.ctx.rotate(o.rotation || 0);
     this.ctx.translate(-cx, -cy);
 
-    // --- ESTILOS ---
     this.ctx.strokeStyle = o.strokeColor;
     this.ctx.fillStyle = o.fillColor;
     this.ctx.lineWidth = o.thickness;
@@ -333,69 +315,50 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
     this.ctx.lineJoin = 'round';
 
     this.ctx.beginPath();
-
     switch (o.type) {
       case 'text':
         this.drawMultilineText(o);
         this.ctx.restore();
         return;
-
       case 'line':
         this.ctx.moveTo(o.x, cy);
         this.ctx.lineTo(o.x + o.width, cy);
         break;
-
       case 'diagonal':
         this.ctx.moveTo(o.x, o.y);
         this.ctx.lineTo(o.x + o.width, o.y + o.height);
         break;
-
       case 'rect':
         this.ctx.rect(o.x, o.y, o.width, o.height);
         break;
-
       case 'circle':
         this.ctx.arc(cx, cy, Math.abs(o.width / 2), 0, Math.PI * 2);
         break;
-
       case 'triangle':
         this.ctx.moveTo(cx, o.y);
         this.ctx.lineTo(o.x, o.y + o.height);
         this.ctx.lineTo(o.x + o.width, o.y + o.height);
         this.ctx.closePath();
         break;
-
-      // --- AQUÍ ESTÁ LA NUEVA FLECHA DELGADA ---
       case 'arrow-thin':
-        // Línea central
         this.ctx.moveTo(o.x, cy);
         this.ctx.lineTo(o.x + o.width, cy);
-
-        // Punta de la flecha (estilo < o >)
-        const headSize = 15; // Tamaño de la punta
-        // Parte superior de la V
+        const headSize = 15;
         this.ctx.lineTo(o.x + o.width - headSize, cy - headSize * 0.6);
-        // Moverse al centro de nuevo
         this.ctx.moveTo(o.x + o.width, cy);
-        // Parte inferior de la V
         this.ctx.lineTo(o.x + o.width - headSize, cy + headSize * 0.6);
         break;
-
       case 'image':
         if (o.imgElement && o.imgElement.complete) {
           this.ctx.drawImage(o.imgElement, o.x, o.y, o.width, o.height);
         }
         this.ctx.restore();
         return;
-
       default:
-        // Figuras complejas (Flecha Gruesa, Diamante, Estrella)
         this.drawPolygons(o, cx, cy);
     }
-
     if (this.isClosedShape(o.type)) this.ctx.fill();
     this.ctx.stroke();
-
     this.ctx.restore();
   }
 
@@ -415,13 +378,11 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
       }
       this.ctx.closePath();
     }
-    // Flecha Gruesa (Polygon)
     else if (o.type === 'arrow') {
       const arrowHeadWidth = o.width * 0.4;
       const shaftHeight = o.height * 0.5;
       const shaftY = o.y + (o.height - shaftHeight) / 2;
       const arrowTipX = o.x + o.width;
-
       this.ctx.moveTo(o.x, shaftY);
       this.ctx.lineTo(o.x + o.width - arrowHeadWidth, shaftY);
       this.ctx.lineTo(o.x + o.width - arrowHeadWidth, o.y);
@@ -447,46 +408,36 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   closeContextMenu() { this.showContextMenu = false; }
   toggleShapesMenu() { this.showShapesMenu = !this.showShapesMenu; }
   onRightClick(e: MouseEvent) { e.preventDefault(); this.showContextMenu = true; this.contextMenuPos = { x: e.clientX, y: e.clientY }; }
-
   eliminarObjetoSeleccionado() { this.canvasObjects = this.canvasObjects.filter(o => o !== this.selectedObject); this.selectedObject = null; this.showContextMenu = false; this.redrawAll(); }
 
   onMouseDown(e: MouseEvent) {
     this.closeContextMenu();
     if (e.button !== 0) return;
-
     const { x, y } = this.getPos(e.clientX, e.clientY);
     this.startX = x; this.startY = y;
 
     if (this.currentTool === 'move') {
       if (this.selectedObject) {
         if (this.isHitRotationHandle(x, y, this.selectedObject)) {
-          this.isRotating = true;
-          return;
+          this.isRotating = true; return;
         }
-
         const hX = this.selectedObject.x + this.selectedObject.width;
         const hY = this.selectedObject.y + this.selectedObject.height;
-
         if (Math.abs(x - hX) < 20 && Math.abs(y - hY) < 20) {
           this.isResizing = true; return;
         }
       }
-
       const found = [...this.canvasObjects].reverse().find(o => this.isPointInRotatedRect(x, y, o));
-
       this.seleccionarObjeto(found || null);
-
       if (found && found.type === 'text') {
         this.fuenteEditable = found.font || 'Arial';
         this.tamanoTextoEditable = found.fontSize || 30;
       }
-
       if (found) {
         this.isDragging = true;
         this.dragOffsetX = x - found.x;
         this.dragOffsetY = y - found.y;
       }
-
     } else if (this.currentTool === 'text') {
       this.agregarFiguraDirecto('text');
       this.setTool('move');
@@ -498,21 +449,17 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
 
   onMouseMove(e: MouseEvent) {
     const { x, y } = this.getPos(e.clientX, e.clientY);
-
     if (this.isRotating && this.selectedObject) {
       const cx = this.selectedObject.x + this.selectedObject.width / 2;
       const cy = this.selectedObject.y + this.selectedObject.height / 2;
       const angle = Math.atan2(y - cy, x - cx) + Math.PI / 2;
       this.selectedObject.rotation = angle;
-
     } else if (this.isResizing && this.selectedObject) {
       this.selectedObject.width = Math.max(30, x - this.selectedObject.x);
       this.selectedObject.height = Math.max(30, y - this.selectedObject.y);
-
     } else if (this.isDragging && this.selectedObject) {
       this.selectedObject.x = x - this.dragOffsetX;
       this.selectedObject.y = y - this.dragOffsetY;
-
     } else if (this.isDrawing) {
       this.ctx.lineTo(x, y);
       this.ctx.stroke();
@@ -521,18 +468,14 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   }
 
   onMouseUp(e: MouseEvent) {
-    this.isDrawing = false;
-    this.isDragging = false;
-    this.isResizing = false;
-    this.isRotating = false;
+    this.isDrawing = false; this.isDragging = false; this.isResizing = false; this.isRotating = false;
     this.redrawAll();
   }
 
   isPointInRotatedRect(x: number, y: number, o: CanvasObject): boolean {
     const cx = o.x + o.width / 2;
     const cy = o.y + o.height / 2;
-    const dx = x - cx;
-    const dy = y - cy;
+    const dx = x - cx; const dy = y - cy;
     const angle = -o.rotation;
     const rx = dx * Math.cos(angle) - dy * Math.sin(angle);
     const ry = dx * Math.sin(angle) + dy * Math.cos(angle);
@@ -568,75 +511,51 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
   agregarFiguraDirecto(type: string) {
     const isText = type === 'text';
     const nuevo: CanvasObject = {
-      id: Date.now(),
-      type,
-      x: 250,
-      y: 150,
-      width: isText ? 250 : 100,
-      height: isText ? 50 : 100,
-      strokeColor: RESET_STROKE,
-      fillColor: RESET_FILL,
-      thickness: isText ? 0 : RESET_THICKNESS,
-      rotation: 0,
-      fontSize: isText ? this.tamanoTextoEditable : undefined,
-      font: isText ? this.fuenteEditable : undefined,
-      text: isText ? 'Escribe aquí' : undefined
+      id: Date.now(), type, x: 250, y: 150, width: isText ? 250 : 100, height: isText ? 50 : 100,
+      strokeColor: RESET_STROKE, fillColor: RESET_FILL, thickness: isText ? 0 : RESET_THICKNESS,
+      rotation: 0, fontSize: isText ? this.tamanoTextoEditable : undefined,
+      font: isText ? this.fuenteEditable : undefined, text: isText ? 'Escribe aquí' : undefined
     };
-    this.canvasObjects.push(nuevo);
-    this.seleccionarObjeto(nuevo);
-    this.redrawAll();
+    this.canvasObjects.push(nuevo); this.seleccionarObjeto(nuevo); this.redrawAll();
   }
 
   cambiarColorBorde() { if (this.selectedObject) this.selectedObject.strokeColor = this.colorTrazo; this.redrawAll(); }
   cambiarColorRelleno() { if (this.selectedObject) this.selectedObject.fillColor = this.colorRelleno; this.redrawAll(); }
   cambiarGrosor() { if (this.selectedObject) this.selectedObject.thickness = Number(this.grosorTrazo); this.redrawAll(); }
-
-  cambiarFuente() {
-    if (this.selectedObject && this.selectedObject.type === 'text') {
-      this.selectedObject.font = this.fuenteEditable;
-      this.redrawAll();
-    }
-  }
-
-  cambiarTamanoTexto() {
-    if (this.selectedObject && this.selectedObject.type === 'text') {
-      this.selectedObject.fontSize = Number(this.tamanoTextoEditable);
-      this.redrawAll();
-    }
-  }
-
+  cambiarFuente() { if (this.selectedObject && this.selectedObject.type === 'text') { this.selectedObject.font = this.fuenteEditable; this.redrawAll(); } }
+  cambiarTamanoTexto() { if (this.selectedObject && this.selectedObject.type === 'text') { this.selectedObject.fontSize = Number(this.tamanoTextoEditable); this.redrawAll(); } }
   actualizarPropiedadesTexto() { this.redrawAll(); }
-  resetearEditor() { this.designForm.reset(); const ops = this.operaciones; while (ops.length !== 0) ops.removeAt(0); this.agregarOperacion(); this.borrarTodo(); this.imagenReferenciaPreview = null; this.imagenReferenciaBase64 = null; }
+
+  resetearEditor() {
+    this.designForm.reset();
+    const ops = this.operaciones;
+    while (ops.length !== 0) ops.removeAt(0);
+    this.agregarOperacion();
+    this.borrarTodo();
+    this.imagenReferenciaPreview = null;
+    this.imagenReferenciaBase64 = null;
+    this.cdr.detectChanges();
+  }
 
   drawMultilineText(o: CanvasObject) {
     if (!o.text) return;
-
     const fontSize = o.fontSize || 30;
     const fontFamily = o.font || 'Arial';
-
     this.ctx.font = `${fontSize}px "${fontFamily}"`;
     this.ctx.fillStyle = o.strokeColor || '#000000';
     this.ctx.textBaseline = 'top';
-
-    const lineHeightRatio = 1.2;
-    const lineHeight = fontSize * lineHeightRatio;
-
+    const lineHeight = fontSize * 1.2;
     const lines = o.text.split('\n');
     let maxLineWidth = 0;
-
     lines.forEach(line => {
       const metrics = this.ctx.measureText(line);
-      if (metrics.width > maxLineWidth) {
-        maxLineWidth = metrics.width;
-      }
+      if (metrics.width > maxLineWidth) maxLineWidth = metrics.width;
     });
-
     let y = o.y;
     lines.forEach(line => {
       this.ctx.fillText(line, o.x, y);
       y += lineHeight;
     });
-
     o.width = maxLineWidth + 20;
     o.height = (lines.length * lineHeight) + 10;
   }
@@ -648,34 +567,25 @@ export class CrearDisenoComponent implements OnInit, AfterViewInit {
     this.ctx.translate(cx, cy);
     this.ctx.rotate(o.rotation || 0);
     this.ctx.translate(-cx, -cy);
-
     this.ctx.strokeStyle = '#00a8ff';
     this.ctx.lineWidth = 1;
     this.ctx.setLineDash([5, 5]);
     this.ctx.strokeRect(o.x - 5, o.y - 5, o.width + 10, o.height + 10);
     this.ctx.setLineDash([]);
-
     this.ctx.fillStyle = '#00a8ff';
     this.ctx.fillRect(o.x + o.width - 5, o.y + o.height - 5, 12, 12);
-
     const handleDist = 25;
     this.ctx.beginPath();
     this.ctx.moveTo(cx, o.y - 5);
     this.ctx.lineTo(cx, o.y - handleDist);
     this.ctx.stroke();
-
     this.ctx.beginPath();
     this.ctx.arc(cx, o.y - handleDist, 6, 0, Math.PI * 2);
     this.ctx.fillStyle = '#ff4757';
     this.ctx.fill();
-    this.ctx.strokeStyle = '#fff';
-    this.ctx.stroke();
-
     this.ctx.restore();
   }
 
-
-  // Función auxiliar para convertir cualquier archivo a Texto Base64
   private toBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
